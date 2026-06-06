@@ -1,135 +1,117 @@
 {
-  "theme": "dark",
-  "archetype": "5 (Luxury) mixed with 7 (Electric/Esports)",
-  "domain_context": "Gamified P2P Trading Platform (Esports meets Wall Street)",
-  "typography": {
-    "headings": {
-      "fontFamily": "'Unbounded', sans-serif",
-      "weights": ["700", "900"],
-      "usage": "H1, H2, Primary CTAs. Wide, futuristic, high-stakes esports feel. Anti-default: avoid Inter/Roboto."
-    },
-    "body": {
-      "fontFamily": "'Outfit', sans-serif",
-      "weights": ["300", "400", "500"],
-      "usage": "General body text, mission statements, FAQ answers."
-    },
-    "data_and_ticker": {
-      "fontFamily": "'JetBrains Mono', monospace",
-      "weights": ["400", "700"],
-      "usage": "Live broadcast ticker, pricing numbers, tables, metrics, stat pills. Tabular numerals for trading data."
-    }
-  },
+  "theme": "light",
+  "archetype": "Swiss & High-Contrast mixed with Organic & Earthy (Modern Fintech)",
   "colors": {
-    "background": {
-      "primary": "#0A0E1A",
-      "secondary": "#0F1628",
-      "tertiary": "#151E32"
-    },
-    "accent": {
-      "gold": "#D4AF37",
-      "gold_glow": "rgba(212, 175, 55, 0.4)",
-      "gold_muted": "rgba(212, 175, 55, 0.15)"
-    },
-    "indicators": {
-      "teal": "#00C9A7",
-      "red": "#FF4C6A",
-      "green": "#00E676"
-    },
-    "text": {
-      "primary": "#FFFFFF",
-      "secondary": "#94A3B8",
-      "inverse": "#0A0E1A"
-    }
+    "background": "#FAFAF7",
+    "foreground": "#0F0F12",
+    "surface": "#FFFFFF",
+    "surface_hover": "#F4F4F5",
+    "primary": "#B4E04C",
+    "primary_foreground": "#0F0F12",
+    "secondary": "#A78BFA",
+    "secondary_foreground": "#FFFFFF",
+    "border": "#E5E7EB",
+    "muted": "#F3F4F6",
+    "muted_foreground": "#6B7280",
+    "finance_profit": "#10B981",
+    "finance_loss": "#EF4444"
   },
-  "layout_and_spacing": {
-    "container_max_width": "max-w-7xl mx-auto px-6",
-    "section_padding": "py-24 md:py-32",
-    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-6",
-    "surface_glass": "bg-[#0F1628]/80 backdrop-blur-xl border border-[#D4AF37]/20 rounded-xl",
-    "surface_solid": "bg-[#0F1628] rounded-xl border border-white/5",
-    "pro_card_highlight": "relative rounded-xl bg-[#0F1628] border-2 border-[#D4AF37] shadow-[0_0_30px_rgba(212,175,55,0.15)]"
+  "typography": {
+    "heading_font": "Satoshi",
+    "body_font": "Satoshi",
+    "mono_font": "Geist Mono, monospace",
+    "scale": {
+      "h1": "text-5xl md:text-6xl tracking-tight leading-none font-bold",
+      "h2": "text-3xl md:text-4xl tracking-tight leading-tight font-semibold",
+      "h3": "text-xl md:text-2xl font-medium",
+      "body": "text-base leading-relaxed text-gray-700",
+      "stats": "text-3xl font-mono tracking-tighter"
+    },
+    "rules": [
+      "No all-caps for headings; use Title Case.",
+      "Tabular lining for all numbers and statistics.",
+      "Use tracking-tight on all headings > 32px."
+    ]
+  },
+  "spacing": {
+    "section_y": "py-24 md:py-32",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "card_padding": "p-6 md:p-8"
+  },
+  "borders": {
+    "radius_card": "rounded-2xl",
+    "radius_button": "rounded-full",
+    "width": "border border-gray-100"
+  },
+  "shadows": {
+    "card": "shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+    "hover": "shadow-[0_12px_24px_rgba(0,0,0,0.08)]",
+    "button": "shadow-[0_2px_10px_rgba(180,224,76,0.3)]"
   },
   "components": {
-    "navigation": {
-      "style": "sticky top-0 z-50 bg-[#0A0E1A]/80 backdrop-blur-2xl border-b border-white/5",
-      "links": "font-outfit text-sm uppercase tracking-widest text-[#94A3B8] hover:text-[#D4AF37] transition-colors"
-    },
-    "hero": {
-      "composition": "Cinematic, text-heavy left alignment with bold H1 ('AIN'T YOU TIRED OF TRADING AGAINST THE BROKER?'), dual CTAs, and a right-side glowing data/chart visualization.",
-      "stat_pills": "inline-flex items-center gap-2 px-4 py-2 rounded-none border border-white/10 bg-[#0F1628]/50 font-mono text-sm tracking-wide text-[#00C9A7]"
-    },
-    "buttons": {
-      "primary": "bg-[#D4AF37] text-[#0A0E1A] font-unbounded font-bold uppercase px-8 py-4 rounded-none hover:bg-white hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300",
-      "secondary": "bg-transparent text-white font-unbounded font-bold uppercase px-8 py-4 rounded-none border border-white/20 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all duration-300",
-      "ghost": "text-[#94A3B8] hover:text-white transition-colors"
-    },
-    "tables": {
-      "container": "w-full text-left font-mono border-collapse",
-      "header": "bg-[#151E32] text-[#D4AF37] text-sm uppercase py-4 px-6 border-b border-white/10",
-      "row": "border-b border-white/5 hover:bg-white/5 transition-colors text-white",
-      "cell": "py-4 px-6",
-      "alternating": "even:bg-[#0A0E1A] odd:bg-[#0F1628]"
-    },
-    "live_ticker": {
-      "style": "bg-[#0A0E1A] border-y border-[#D4AF37]/30 py-3 overflow-hidden flex items-center shadow-[0_0_15px_rgba(212,175,55,0.1)]",
-      "text": "font-mono text-sm uppercase whitespace-nowrap px-8",
-      "positive": "text-[#00E676]",
-      "negative": "text-[#FF4C6A]",
-      "neutral": "text-[#00C9A7]"
-    },
-    "accordion": {
-      "wrapper": "max-w-3xl mx-auto space-y-4",
-      "item": "bg-[#0F1628] border border-white/5 rounded-none px-6 py-2",
-      "trigger": "font-outfit text-lg font-medium text-white hover:text-[#D4AF37] py-4 flex justify-between w-full text-left",
-      "content": "text-[#94A3B8] font-outfit pb-4 leading-relaxed"
-    }
+    "button": "bg-primary text-primary-foreground font-medium px-6 py-3 rounded-full transition-all duration-200 hover:-translate-y-0.5 shadow-sm",
+    "card": "bg-white border border-gray-100 rounded-2xl p-6 md:p-8 transition-shadow duration-300 hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)]",
+    "accordion": "border-b border-gray-200 py-4",
+    "table": "w-full text-left text-sm whitespace-nowrap",
+    "badge": "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-white"
+  },
+  "layout_patterns": {
+    "hero": "Left-aligned confident heading with right-side composition of a stylized trading dashboard mockup. No centered generic hero.",
+    "features_bento": "Asymmetric bento grid for the 5 product types. Generous gap-8. Mix tall and wide cards.",
+    "pricing": "Side-by-side cards. Pro plan highlighted with subtle purple (secondary) top border and badge.",
+    "faq": "Minimalist accordion, hairline bottom borders, no heavy boxes.",
+    "footer": "Multi-column, large let's talk/CTA at the bottom, generous py-24 padding, light background."
   },
   "motion": {
-    "hover_states": "subtle lift (-translate-y-1) and glow (shadow-lg shadow-[#D4AF37]/10) for cards.",
-    "page_load": "staggered fade-up for hero elements.",
-    "ticker_animation": "continuous linear scroll (Marquee) simulating live data."
+    "scroll": "Use framer-motion for subtle fade-up and slight scale (0.98 -> 1) on scroll.",
+    "hover": "Smooth transform (-translate-y-1) and shadow increase on interactive cards."
   },
-  "media_assets": {
-    "images": {
-      "hero_background": {
-        "url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwyfHxkYXJrJTIwYWJzdHJhY3QlMjBmaW5hbmNpYWwlMjBjaGFydHxlbnwwfHx8fDE3ODA3ODQyNDN8MA&ixlib=rb-4.1.0&q=85",
-        "description": "Dark abstract financial chart (candlestick).",
-        "usage": "Use as a subtle low-opacity (10-20%) background overlay in the hero section."
-      },
-      "circuit_texture": {
-        "url": "https://images.pexels.com/photos/8108728/pexels-photo-8108728.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Abstract motherboard circuits with diagonal grid overlay.",
-        "usage": "Background texture for the Product Suite or Pricing section to inject the 'esports' tech vibe."
-      },
-      "gold_accent": {
-        "url": "https://images.unsplash.com/photo-1741356474365-5f0041f89eaa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwyfHxnb2xkJTIwdGV4dHVyZSUyMGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc4MDc4NDI0M3ww&ixlib=rb-4.1.0&q=85",
-        "description": "Golden ribbons flowing on dark.",
-        "usage": "Use inside the Pro Pricing card as a subtle background image overlay with multiply/screen blend mode."
-      },
-      "duel_players": {
-        "url": "https://images.unsplash.com/photo-1542751371-adc38448a05e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwxfHxlc3BvcnRzJTIwdG91cm5hbWVudCUyMGRhcmt8ZW58MHx8fHwxNzgwNzg0MjQzfDA&ixlib=rb-4.1.0&q=85",
-        "description": "Person sitting on gaming chair playing.",
-        "usage": "Image for 1v1 DUEL product deep-dive card (half-width image, half-width text)."
-      },
-      "tournament_players": {
-        "url": "https://images.pexels.com/photos/9072320/pexels-photo-9072320.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Competitive gamers in esports tournament.",
-        "usage": "Image for TRADING ROYALE or MULTI TRADER product card (alternating layout)."
-      }
+  "image_urls": [
+    {
+      "url": "https://customer-assets.emergentagent.com/job_trade-duel-arena/artifacts/aemoxt7k_Asset%2025%404x-8.png",
+      "category": "logo_wordmark",
+      "description": "Primary logo (dark text, lime icon) to be used on light nav."
+    },
+    {
+      "url": "https://customer-assets.emergentagent.com/job_trade-duel-arena/artifacts/u1c1u1pz_Asset%2027%404x-8.png",
+      "category": "logo_dark",
+      "description": "Logo for dark backgrounds if used."
+    },
+    {
+      "url": "https://customer-assets.emergentagent.com/job_trade-duel-arena/artifacts/mvnt0asf_Asset%2030%404x-8.png",
+      "category": "icon",
+      "description": "Standalone icon on white."
+    },
+    {
+      "url": "https://customer-assets.emergentagent.com/job_trade-duel-arena/artifacts/bo6j2sct_Asset%2029%404x-8.png",
+      "category": "icon_purple",
+      "description": "Icon on purple background."
+    },
+    {
+      "url": "https://customer-assets.emergentagent.com/job_trade-duel-arena/artifacts/bc7jghff_Asset%2026%404x-8.png",
+      "category": "icon_white_on_purple",
+      "description": "Icon white on purple background."
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMHBvcnRyYWl0fGVufDB8fHx8MTc4MDc4NTYyNHww&ixlib=rb-4.1.0&q=85",
+      "category": "avatar",
+      "description": "Trader avatar for UI mockups (e.g., 1v1 duel)."
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1581065178047-8ee15951ede6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMHBvcnRyYWl0fGVufDB8fHx8MTc4MDc4NTYyNHww&ixlib=rb-4.1.0&q=85",
+      "category": "avatar",
+      "description": "Opponent trader avatar for UI mockups."
     }
-  },
-  "testing_attributes": {
-    "rule": "All interactive elements MUST have a data-testid attribute formatted as kebab-case and role-based (e.g., data-testid='hero-cta-button')."
+  ],
+  "testing": {
+    "data_testid_rules": "All interactive and key informational elements MUST include a data-testid attribute formatted as kebab-case role-based strings (e.g., 'login-form-submit-button', 'product-1v1-card')."
   },
   "instructions_to_main_agent": [
-    "Load custom fonts from Google Fonts: 'Unbounded' (Headings), 'Outfit' (Body), 'JetBrains Mono' (Data).",
-    "Use standard React .js/.jsx syntax. No .tsx.",
-    "Implement pure HTML/Tailwind for the high-end marketing layouts. Avoid default Vercel-look generic cards. Use glassmorphism blocks with #D4AF37 borders where requested.",
-    "Alternate the layout (left/right) for the five product deep-dive sections (1v1 DUEL, TRADING ROYALE, MULTI TRADER, TAG TEAM TRADING, COMMUNITY BATTLES).",
-    "For the live ticker, simulate a scrolling marquee with mock trade data (e.g., 'USER77 WON $500 IN 1V1 DUEL', 'ROYALE ROUND STARTING 05:00'). Colorize wins/losses.",
-    "Ensure the 'MOST POPULAR' Pro Plan pricing card uses the gold border glow.",
-    "Use lucide-react for all iconography. No emojis allowed in the UI.",
-    "Buttons and major cards should lean toward sharp (rounded-none or small radius) to fit the competitive, aggressive esports aesthetic.",
-    "Render mini-charts using Recharts if it enhances the hero section or 'How It Works' area."
+    "Scrap all dark/gold/esports styles.",
+    "Implement a light-mode primary theme with #FAFAF7 background.",
+    "Use Satoshi (or Geist/General Sans) for text. Never use Inter or Roboto.",
+    "For the hero mockup, do not just insert an image. Build a stylized composite component showcasing a 'duel dashboard' using Tailwind divs (live P&L, two trader avatars, equity chart) that looks like a high-end fintech component.",
+    "Buttons should use lime green (#B4E04C) with dark text for maximum contrast and approachability.",
+    "Use lucide-react for all icons."
   ]
 }
