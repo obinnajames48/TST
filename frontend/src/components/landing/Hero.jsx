@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, Play, ArrowUpRight as Up, ArrowDownRight as Down } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -13,6 +14,7 @@ const seedA = Array.from({ length: 32 }, (_, i) => ({ i, v: 100 + Math.sin(i / 3
 const seedB = Array.from({ length: 32 }, (_, i) => ({ i, v: 100 + Math.cos(i / 4) * 11 - Math.random() * 6 }));
 
 export default function Hero() {
+  const navigate = useNavigate();
   const [a, setA] = useState(seedA);
   const [b, setB] = useState(seedB);
   const [pnlA, setPnlA] = useState(2847);
@@ -85,6 +87,7 @@ export default function Hero() {
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <button
               data-testid="hero-cta-primary"
+              onClick={() => navigate("/app")}
               className="group inline-flex items-center gap-2 bg-[#0F0F12] text-white font-medium text-[15px] px-6 py-3.5 rounded-full hover:bg-[#1F2024] transition-all hover:-translate-y-0.5"
             >
               Start competing
@@ -94,7 +97,7 @@ export default function Hero() {
             </button>
             <button
               data-testid="hero-cta-secondary"
-              onClick={() => document.getElementById("ticker")?.scrollIntoView({ behavior: "smooth" })}
+              onClick={() => navigate("/app/duel")}
               className="group inline-flex items-center gap-2 bg-white border border-[#ECECEA] text-[#0F0F12] font-medium text-[15px] px-6 py-3.5 rounded-full hover:bg-[#F5F5F2] transition-all"
             >
               <Play className="w-3.5 h-3.5 fill-current" /> Watch a live duel

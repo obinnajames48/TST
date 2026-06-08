@@ -1,0 +1,36 @@
+{
+  "summary": "Completed frontend-only e2e testing of the Select Traders Client Area scaffold. Validated every route, every data-testid referenced, all critical interactions (tab switching, spawn flow 4-phase modal, match page, create team dialog with validation, wallet withdraw KYC gate, sidebar logout, mobile drawer). All 21 features in the review request pass.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Stats page / hidden chart containers", "issues": ["Recharts emits warnings: 'The width(-1) and height(-1) of chart should be greater than 0' on initial render. Cosmetic console noise; charts render correctly once visible. Consider wrapping ResponsiveContainer with minHeight/minWidth or rendering charts only when their tab is visible."]},
+      {"screen": "Settings → Profile (locked username field)", "issues": ["React warning: 'You provided a value prop to a form field without an onChange handler.' Likely the locked @username input uses value={...} without onChange. Use readOnly + defaultValue or add a noop onChange to silence the warning."]},
+      {"screen": "TagTeam → Create team dialog", "issues": ["The hint text 'Capital split (sum must equal $100,000)' and 'Sum: $X / $Y' label remain in a red/error color even when the sum is valid (e.g., 33333+33333+33334=100000). Should switch to a success/green color (or neutral) when valid for better feedback."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional) Fix Settings locked username input — switch from value to readOnly+defaultValue (or add noop onChange) to remove React warning.",
+    "(Optional) Eliminate Recharts width/height(-1) console warnings by setting explicit min dims or lazy-mounting charts inside inactive tab panes.",
+    "(Optional / minor UX) Toggle the 'Sum: $X / $Y' color to green when capital split matches total in Create Team dialog.",
+    "(Doc only) Reference listed 'sidebar-link-trade-duel-arena' but actual testids are kebab-cased from menu labels (e.g., 'sidebar-link-1v1-duel-centre'). Either update review-request docs or rename testids to match."
+  ],
+  "critical_code_review_comments": [
+    "All interactive elements have proper data-testid attributes (verified 10 sidebar links, 6 settings tabs, all page-level testids, spawn-card-{size}, lobby-card-{id}, tournament-card-{id}, team-{id}, notif-{id}). Excellent test hygiene.",
+    "All flows are properly mocked (sonner toasts, spawn flow 4-phase setTimeout, Recharts simulated ticks). No backend calls were made — consistent with MVP scaffold scope.",
+    "Mobile responsiveness verified: desktop sidebar hidden on 375px width, hamburger toggle opens a separate drawer (Sheet-style) containing all 10 nav items + user/sign-out footer.",
+    "Sidebar logout correctly routes back to '/' landing page; spawn flow correctly redirects to '/app/match/4781' after ~8s through 4 phases (searching → paired → activating → starting)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "Not required — no auth gates implemented yet. Mock user @TradeFury (PRO plan) is hardcoded in /app/frontend/src/lib/mockData.js.",
+  "seed_data_creation": "None — all data sourced from mockData.js",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Client Area scaffold at /app/* is fully functional with mocked data. Next iteration likely wires real backend (FastAPI). When backend integration begins: (1) replace mockData.js consumers with React Query hooks pointing to /api/* (process.env.REACT_APP_BACKEND_URL), (2) the spawn flow's setTimeout chain will need to become real matchmaking calls, (3) wallet/KYC/team-create stubs become real POSTs. All data-testids are stable — reuse the playwright selectors used here. Note: the reference doc mentions 'sidebar-link-trade-duel-arena' but actual testid is 'sidebar-link-1v1-duel-centre' (kebab-cased label). Use the runtime testids listed in this report's critical_code_review_comments."
+}

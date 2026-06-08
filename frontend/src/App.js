@@ -2,6 +2,18 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import Landing from "@/pages/Landing";
+import ClientLayout from "@/components/app/ClientLayout";
+import Dashboard from "@/pages/app/Dashboard";
+import Duel from "@/pages/app/Duel";
+import Royale from "@/pages/app/Royale";
+import Tournament from "@/pages/app/Tournament";
+import TagTeam from "@/pages/app/TagTeam";
+import Community from "@/pages/app/Community";
+import Stats from "@/pages/app/Stats";
+import Wallet from "@/pages/app/Wallet";
+import Settings from "@/pages/app/Settings";
+import Notifications from "@/pages/app/Notifications";
+import Match from "@/pages/app/Match";
 
 function App() {
   return (
@@ -9,6 +21,19 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/app/match/:matchId" element={<Match />} />
+          <Route path="/app" element={<ClientLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="duel" element={<Duel />} />
+            <Route path="royale" element={<Royale />} />
+            <Route path="tournament" element={<Tournament />} />
+            <Route path="tagteam" element={<TagTeam />} />
+            <Route path="community" element={<Community />} />
+            <Route path="stats" element={<Stats />} />
+            <Route path="wallet" element={<Wallet />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="notifications" element={<Notifications />} />
+          </Route>
         </Routes>
       </BrowserRouter>
       <Toaster

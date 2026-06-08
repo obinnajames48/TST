@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
 const LOGO_WORDMARK =
@@ -12,6 +13,7 @@ const links = [
 ];
 
 export default function Nav() {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -61,13 +63,14 @@ export default function Nav() {
         <div className="hidden lg:flex items-center gap-2">
           <button
             data-testid="nav-signin-btn"
+            onClick={() => navigate("/app")}
             className="text-[14px] font-medium text-[#1F2024] px-4 py-2 rounded-full hover:bg-[#F5F5F2] transition-colors"
           >
             Sign in
           </button>
           <button
             data-testid="nav-getstarted-btn"
-            onClick={() => goto("pricing")}
+            onClick={() => navigate("/app")}
             className="inline-flex items-center gap-2 bg-[#0F0F12] text-white text-[14px] font-medium px-5 py-2.5 rounded-full hover:bg-[#1F2024] transition-all hover:-translate-y-px"
           >
             Get started
@@ -100,10 +103,10 @@ export default function Nav() {
             </button>
           ))}
           <div className="pt-4 flex flex-col gap-2 border-t border-[#ECECEA]">
-            <button className="text-[14px] font-medium text-[#1F2024] px-4 py-3 rounded-full bg-white border border-[#ECECEA]">
+            <button onClick={() => navigate("/app")} className="text-[14px] font-medium text-[#1F2024] px-4 py-3 rounded-full bg-white border border-[#ECECEA]">
               Sign in
             </button>
-            <button className="bg-[#0F0F12] text-white text-[14px] font-medium px-4 py-3 rounded-full">
+            <button onClick={() => navigate("/app")} className="bg-[#0F0F12] text-white text-[14px] font-medium px-4 py-3 rounded-full">
               Get started
             </button>
           </div>
