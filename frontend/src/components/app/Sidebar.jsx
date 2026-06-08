@@ -11,6 +11,7 @@ import {
   Bell,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { currentUser } from "@/lib/mockData";
 
@@ -28,6 +29,7 @@ const nav = [
 const navSecondary = [
   { to: "/app/stats", label: "My Stats", icon: BarChart3 },
   { to: "/app/wallet", label: "Wallet", icon: Wallet },
+  { to: "/app/affiliate", label: "Affiliate", icon: Sparkles },
   { to: "/app/notifications", label: "Notifications", icon: Bell, badge: 2 },
   { to: "/app/settings", label: "Settings", icon: Settings },
 ];

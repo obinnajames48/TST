@@ -916,6 +916,285 @@ async def admin_community_signups(_: bool = AdminAuth):
     return await db.find_many(db.community_signups(), {}, sort=[("created_at", -1)], limit=200)
 
 
+app.include_router(api)
+
+
+# ============================================================
+# EXTENSIONS (v4): MT5, login countdown, Affiliates, Settlements, Transactions
+# ============================================================
+
+# (Routes below added to the same router instances; we re-include at the bottom.)
+
+MT5_SERVERS = ["SelectTraders-Live01", "SelectTraders-Live02", "SelectTraders-Live03"]
+
+
+def _mt5_for_duel(duel_id: str, user_id: str) -> dict:
+    """Deterministic mock MT5 credentials per duel-user combo."""
+    seed = sum(ord(c) for c in (duel_id + user_id))
+    login = 7700000 + (seed % 99999)
+    pwd_pool = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    pwd = "".join(pwd_pool[(seed * (i + 1)) % len(pwd_pool)] for i in range(10))
+    return {
+        "login": str(login),
+        "password": pwd,
+        "server": MT5_SERVERS[seed % len(MT5_SERVERS)],
+        "platform": "MetaTrader 5",
+    }
+
+
+@api.get("/duels/{duel_id}/mt5")
+async def get_mt5_creds(duel_id: str, me: dict = CurrentUser):
+    d = await db.find_one(db.duels(), {"id": duel_id})
+    if not d:
+        raise HTTPException(404, "Duel not found")
+    if me["id"] not in (d.get("trader_a_id"), d.get("trader_b_id")):
+        raise HTTPException(403, "Not a participant in this duel")
+    return _mt5_for_duel(duel_id, me["id"])
+
+
+@api.post("/duels/{duel_id}/confirm-login")
+async def confirm_mt5_login(duel_id: str, me: dict = CurrentUser):
+    d = await db.find_one(db.duels(), {"id": duel_id})
+    if not d:
+        raise HTTPException(404, "Duel not found")
+    side = "login_confirmed_a" if d.get("trader_a_id") == me["id"] else "login_confirmed_b"
+    await db.duels().update_one({"id": duel_id}, {"$set": {side: _now().isoformat()}})
+    # if both confirmed, mark trading_started_at
+    updated = await db.find_one(db.duels(), {"id": duel_id})
+    if updated.get("login_confirmed_a") and updated.get("login_confirmed_b") and not updated.get("trading_started_at"):
+        await db.duels().update_one({"id": duel_id}, {"$set": {"trading_started_at": _now().isoformat()}})
+    return {"ok": True, "both_confirmed": bool(updated.get("login_confirmed_a") and updated.get("login_confirmed_b"))}
+
+
+# ---------- Affiliates ----------
+
+AFFILIATE_TIERS = [
+    {"name": "Rookie",  "min_refs": 0,  "min_volume": 0,      "rev_share_pct": 10, "signup_bonus": 5,  "color": "neutral"},
+    {"name": "Pro",     "min_refs": 5,  "min_volume": 5000,   "rev_share_pct": 15, "signup_bonus": 10, "color": "lime"},
+    {"name": "Elite",   "min_refs": 20, "min_volume": 25000,  "rev_share_pct": 20, "signup_bonus": 15, "color": "purple"},
+    {"name": "Legend",  "min_refs": 50, "min_volume": 100000, "rev_share_pct": 25, "signup_bonus": 25, "color": "dark"},
+]
+
+
+def _calc_tier(active_refs: int, volume: float) -> dict:
+    current = AFFILIATE_TIERS[0]
+    nxt = AFFILIATE_TIERS[1]
+    for i, t in enumerate(AFFILIATE_TIERS):
+        if active_refs >= t["min_refs"] and volume >= t["min_volume"]:
+            current = t
+            nxt = AFFILIATE_TIERS[i + 1] if i + 1 < len(AFFILIATE_TIERS) else None
+    return {"current": current, "next": nxt}
+
+
+@api.get("/me/affiliate")
+async def my_affiliate(me: dict = CurrentUser):
+    # Mock metrics deterministic by user
+    seed = sum(ord(c) for c in me["username"])
+    total_refs = (seed % 30) + 7
+    active_refs = max(1, total_refs - (seed % 5))
+    volume = round(active_refs * 1200 + (seed % 9000), 2)
+    earnings = round(volume * 0.18, 2)
+    pending = round(earnings * 0.22, 2)
+    tier_info = _calc_tier(active_refs, volume)
+    ref_code = me["username"].lower()[:8]
+    return {
+        "ref_code": ref_code,
+        "ref_link": f"https://selecttraders.com/?ref={ref_code}",
+        "total_refs": total_refs,
+        "active_refs": active_refs,
+        "referred_volume": volume,
+        "lifetime_earnings": earnings,
+        "pending_payout": pending,
+        "tier": tier_info["current"],
+        "next_tier": tier_info["next"],
+        "progress_to_next": {
+            "refs": (active_refs / tier_info["next"]["min_refs"] * 100) if tier_info["next"] else 100,
+            "volume": (volume / max(1, tier_info["next"]["min_volume"]) * 100) if tier_info["next"] else 100,
+        },
+        "tiers": AFFILIATE_TIERS,
+    }
+
+
+@api.get("/me/affiliate/referrals")
+async def my_referrals(me: dict = CurrentUser):
+    # Mock: show some seeded users as "referred"
+    seed = sum(ord(c) for c in me["username"])
+    others = await db.find_many(db.users(), {"id": {"$ne": me["id"]}}, limit=12)
+    out = []
+    for i, u in enumerate(others):
+        engaged = (seed + i) % 4 != 0
+        out.append({
+            "username": u["username"],
+            "joined": (_now() - timedelta(days=(i + 1) * 4)).strftime("%b %d"),
+            "active": engaged,
+            "matches": (i + 2) * 3 if engaged else 1,
+            "volume": round((i + 1) * 480, 2) if engaged else 0,
+            "earned_for_you": round(((i + 1) * 480) * 0.18, 2) if engaged else 5,
+        })
+    return out
+
+
+@api.get("/me/affiliate/payouts")
+async def my_payouts(me: dict = CurrentUser):
+    seed = sum(ord(c) for c in me["username"])
+    out = []
+    for i in range(4):
+        amt = round(((seed + i * 17) % 800) + 120, 2)
+        out.append({
+            "id": f"AFP-{(seed + i) % 9999}",
+            "amount": amt,
+            "status": "completed" if i > 0 else "processing",
+            "date": (_now() - timedelta(days=i * 14 + 4)).strftime("%b %d, %Y"),
+            "method": "Bank •••1184",
+        })
+    return out
+
+
+# ---------- Admin v4 ----------
+
+@admin.get("/transactions")
+async def admin_transactions(_: bool = AdminAuth, type: Optional[str] = None, status: Optional[str] = None):
+    filt = {}
+    if type and type != "all":
+        filt["type"] = type
+    if status and status != "all":
+        filt["status"] = status
+    docs = await db.transactions().find(filt, db.PROJECTION_NO_ID).sort("created_at", -1).limit(200).to_list(length=200)
+    user_ids = list({d.get("user_id") for d in docs if d.get("user_id")})
+    users_map = await _users_by_id(user_ids)
+    for d in docs:
+        u = users_map.get(d.get("user_id"))
+        d["username"] = u["username"] if u else "—"
+    return docs
+
+
+@admin.get("/settlements")
+async def admin_settlements(_: bool = AdminAuth):
+    """Terminal: every settled (completed/cancelled) match across products."""
+    duels = await db.duels().find({"status": {"$in": ["completed", "cancelled"]}}, db.PROJECTION_NO_ID).sort("ends_at", -1).limit(50).to_list(length=50)
+    items = []
+    user_ids = set()
+    for d in duels:
+        user_ids.add(d.get("trader_a_id"))
+        user_ids.add(d.get("trader_b_id"))
+    users_map = await _users_by_id([u for u in user_ids if u])
+    for d in duels:
+        items.append({
+            "id": d["id"], "kind": "Duel", "type": d.get("type", "standard"),
+            "status": d["status"],
+            "trader_a": users_map.get(d.get("trader_a_id"), {}).get("username", "—"),
+            "trader_b": users_map.get(d.get("trader_b_id"), {}).get("username", "—"),
+            "account_size": d.get("account_size", 0),
+            "prize": d.get("prize", 0),
+            "winner": users_map.get(d.get("winner_id"), {}).get("username", "—") if d.get("winner_id") else "—",
+            "settled_at": d.get("ends_at"),
+        })
+    # also include some mock royale/tournament settlements for visibility
+    extras = [
+        {"id": "R-PAST01", "kind": "Royale", "type": "standard", "status": "completed",
+         "trader_a": "—", "trader_b": "Lobby 50p", "account_size": 5000, "prize": 850,
+         "winner": "StealthAlpha", "settled_at": (_now() - timedelta(days=1)).isoformat()},
+        {"id": "T-PAST01", "kind": "Tournament", "type": "standard", "status": "completed",
+         "trader_a": "—", "trader_b": "32-player bracket", "account_size": 50000, "prize": 18400,
+         "winner": "GoldHands", "settled_at": (_now() - timedelta(days=4)).isoformat()},
+    ]
+    return items + extras
+
+
+@admin.get("/settlements/{settlement_id}")
+async def admin_settlement_detail(settlement_id: str, _: bool = AdminAuth):
+    d = await db.find_one(db.duels(), {"id": settlement_id})
+    if d:
+        user_ids = [d.get("trader_a_id"), d.get("trader_b_id")]
+        users_map = await _users_by_id([u for u in user_ids if u])
+        return {
+            "id": d["id"], "kind": "Duel", "summary": {
+                "trader_a": users_map.get(d.get("trader_a_id"), {}).get("username", "—"),
+                "trader_b": users_map.get(d.get("trader_b_id"), {}).get("username", "—"),
+                "account_size": d["account_size"], "entry_fee": d["entry_fee"], "prize": d["prize"],
+                "rules": d.get("rules", {}), "status": d["status"],
+                "started_at": d.get("started_at"), "ends_at": d.get("ends_at"),
+                "winner": users_map.get(d.get("winner_id"), {}).get("username", "—") if d.get("winner_id") else "—",
+                "void_reason": d.get("void_reason"),
+            },
+        }
+    return {"id": settlement_id, "kind": "Match", "summary": {"note": "Mock settlement — no detail persisted."}}
+
+
+@admin.get("/affiliates")
+async def admin_affiliates(_: bool = AdminAuth):
+    """All affiliates with totals."""
+    users = await db.find_many(db.users(), {}, limit=100)
+    out = []
+    for u in users:
+        seed = sum(ord(c) for c in u["username"])
+        active_refs = max(1, (seed % 30) + 2)
+        volume = round(active_refs * 1200 + (seed % 9000), 2)
+        earnings = round(volume * 0.18, 2)
+        pending = round(earnings * 0.22, 2)
+        tier = _calc_tier(active_refs, volume)["current"]
+        out.append({
+            "user_id": u["id"], "username": u["username"], "tier": tier["name"],
+            "active_refs": active_refs, "volume": volume,
+            "lifetime_earnings": earnings, "pending_payout": pending,
+        })
+    out.sort(key=lambda x: -x["lifetime_earnings"])
+    return out[:20]
+
+
+@admin.post("/affiliates/{user_id}/payout")
+async def admin_affiliate_payout(user_id: str, payload: dict, _: bool = AdminAuth):
+    amount = float(payload.get("amount", 0))
+    await db.transactions().insert_one({
+        "id": _uid_str(), "user_id": user_id, "type": "Prize", "amount": amount,
+        "status": "completed", "reference": "Affiliate payout",
+        "created_at": _now().isoformat(),
+    })
+    await db.users().update_one({"id": user_id}, {"$inc": {"balance": amount}})
+    await _audit("affiliate.payout", target=user_id, meta={"amount": amount})
+    return {"ok": True}
+
+
+@admin.get("/matches-by-status")
+async def admin_matches_by_status(_: bool = AdminAuth):
+    """Grouped match counts and lists by product + status."""
+    duels = await db.find_many(db.duels(), {})
+    lobbies = await db.find_many(db.royale_lobbies(), {})
+    tours = await db.find_many(db.tournaments(), {})
+    return {
+        "duels": {
+            "active": [d for d in duels if d["status"] == "live"],
+            "inactive": [d for d in duels if d["status"] in ("pairing", "cancelled")],
+            "completed": [d for d in duels if d["status"] == "completed"],
+        },
+        "royale": {
+            "active": [l for l in lobbies if l["status"] in ("live", "starting")],
+            "inactive": [l for l in lobbies if l["status"] == "filling"],
+            "completed": [l for l in lobbies if l["status"] == "completed"],
+        },
+        "tournament": {
+            "active": [t for t in tours if t["stage"] not in ("Registration", "Completed")],
+            "inactive": [t for t in tours if t["stage"] == "Registration"],
+            "completed": [t for t in tours if t["stage"] == "Completed"],
+        },
+    }
+
+
+# Now that all routes are defined, mount the routers properly.
+# (FastAPI snapshots routes at include time; the earlier app.include_router(api)
+#  above missed v4 routes. Re-including the same router is idempotent for our case.)
+for r in list(app.routes):
+    if hasattr(r, "path") and (r.path.startswith("/api/admin/transactions") or
+                                r.path.startswith("/api/admin/settlements") or
+                                r.path.startswith("/api/admin/affiliates") or
+                                r.path.startswith("/api/admin/matches-by-status") or
+                                r.path.startswith("/api/me/affiliate") or
+                                r.path.startswith("/api/duels/") and "/mt5" in r.path or
+                                r.path.startswith("/api/duels/") and "/confirm-login" in r.path):
+        pass
+
+# Simplest correct approach: re-include both routers so the new routes are picked up.
+app.include_router(api)
 app.include_router(admin)
 
 app.add_middleware(
