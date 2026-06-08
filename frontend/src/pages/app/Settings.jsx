@@ -128,7 +128,7 @@ function Account() {
         <Field label="Email">
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF]" />
-            <Input value="riley@example.com" className="pl-9" />
+            <Input defaultValue="riley@example.com" className="pl-9" />
           </div>
         </Field>
         <div className="h-3" />

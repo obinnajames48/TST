@@ -125,8 +125,8 @@ function CreateTeamDialog({ children }) {
   const [splits, setSplits] = useState([33333, 33333, 33334]);
   const slots = format === "3v3" ? 3 : 5;
 
-  const sum = splits.slice(0, slots).reduce((a, b) => a + b, 0);
-  const valid = sum === total && name.length > 1;
+  const sumValid = sum === total;
+  const valid = sumValid && name.length > 1;
 
   const setSlot = (i, v) => {
     const next = [...splits];
