@@ -94,11 +94,14 @@ export function AdminSettlements() {
   const [selected, setSelected] = useState(null);
   const { data: detail } = useFetch(() => selected ? get(`/settlements/${selected}`) : Promise.resolve(null), { deps: [selected] });
 
+  const summary = detail?.summary || {};
+
   return (
     <div className="space-y-6" data-testid="admin-settlements">
       <div>
         <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Terminal</div>
         <h1 className="text-3xl md:text-[40px] font-bold tracking-tight text-[#0F0F12] leading-tight mt-1">Settlements</h1>
+        <p className="text-[13px] text-[#6B7280] mt-2">Every settled match across the platform. Tap a row to see the event summary.</p>
       </div>
       <div className="grid lg:grid-cols-5 gap-5">
         <div className="lg:col-span-3 bg-white border border-[#ECECEA] rounded-2xl overflow-x-auto">
@@ -106,8 +109,8 @@ export function AdminSettlements() {
             <thead className="text-[#9CA3AF] text-[11px] border-b border-[#ECECEA]"><tr><th className="text-left py-3 px-5 font-medium">ID</th><th className="text-left py-3 px-3 font-medium">Kind</th><th className="text-left py-3 px-3 font-medium">Status</th><th className="text-left py-3 px-3 font-medium">Winner</th><th className="text-right py-3 px-3 font-medium">Prize</th><th className="text-left py-3 px-5 font-medium">Settled</th></tr></thead>
             <tbody>
               {(items || []).map(s => (
-                <tr key={s.id} onClick={() => setSelected(s.id)} className={`border-b border-[#F1F1EF] cursor-pointer hover:bg-[#FAFAF7] ${selected === s.id ? "bg-[#E6F4C2]/40" : ""}`}>
-                  <td className="py-3 px-5 font-mono font-semibold text-[#0F0F12]">{s.id}</td>
+                <tr key={s.id} onClick={() => setSelected(s.id)} data-testid={`settlement-row-${s.id}`} className={`border-b border-[#F1F1EF] cursor-pointer hover:bg-[#FAFAF7] transition-colors ${selected === s.id ? "bg-[#E6F4C2]/40" : ""}`}>
+                  <td className="py-3 px-5 font-mono font-semibold text-[#0F0F12] truncate max-w-[110px]" title={s.id}>{String(s.id).slice(0, 8)}…</td>
                   <td className="py-3 px-3"><span className="text-[10px] font-bold uppercase bg-[#F3F4F6] text-[#6B7280] px-2 py-0.5 rounded">{s.kind}</span></td>
                   <td className="py-3 px-3"><span className={`text-[10px] px-2 py-0.5 rounded-full ${s.status === "completed" ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#FEE2E2] text-[#DC2626]"}`}>{s.status}</span></td>
                   <td className="py-3 px-3 text-[#0F0F12]">@{s.winner}</td>
@@ -119,16 +122,58 @@ export function AdminSettlements() {
           </table>
           {(!items || items.length === 0) && <div className="p-10 text-center text-[#6B7280]">No settlements yet.</div>}
         </div>
-        <div className="lg:col-span-2 bg-white border border-[#ECECEA] rounded-2xl p-6">
-          <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Detail</div>
-          <div className="text-base font-semibold text-[#0F0F12] mb-4">{selected || "Select a settlement"}</div>
-          {detail ? (
-            <pre className="text-[12px] bg-[#FAFAF7] border border-[#F1F1EF] rounded-xl p-4 overflow-x-auto whitespace-pre-wrap font-mono">{JSON.stringify(detail.summary, null, 2)}</pre>
-          ) : (
-            <div className="text-[13px] text-[#6B7280]">Click a row on the left to load summary.</div>
+        <div className="lg:col-span-2 bg-white border border-[#ECECEA] rounded-2xl p-6" data-testid="settlement-detail">
+          <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Event summary</div>
+          <div className="text-base font-semibold text-[#0F0F12] mb-5 font-mono truncate" title={selected}>{selected ? `${String(selected).slice(0, 14)}…` : "Select a settlement"}</div>
+          {!selected && <div className="text-[13px] text-[#6B7280]">Click any row to load the full event detail.</div>}
+          {selected && detail && (
+            <div className="space-y-4">
+              {summary.trader_a && (
+                <div className="grid grid-cols-2 gap-3">
+                  <Block label="Trader A" value={`@${summary.trader_a}`} />
+                  <Block label="Trader B" value={`@${summary.trader_b}`} />
+                </div>
+              )}
+              {summary.winner && summary.winner !== "—" && (
+                <div className="bg-[#E6F4C2] border border-[#B4E04C]/40 rounded-2xl p-4">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#0F0F12]/60">Winner</div>
+                  <div className="text-[18px] font-bold text-[#0F0F12] mt-1">@{summary.winner}</div>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                {summary.account_size !== undefined && <Block label="Account size" value={`$${summary.account_size.toLocaleString()}`} mono />}
+                {summary.entry_fee !== undefined && <Block label="Entry fee" value={`$${summary.entry_fee.toLocaleString()}`} mono />}
+                {summary.prize !== undefined && <Block label="Prize" value={`$${summary.prize.toLocaleString()}`} mono accent />}
+                {summary.status && <Block label="Status" value={summary.status} />}
+              </div>
+              {summary.started_at && (
+                <div className="text-[11.5px] font-mono text-[#6B7280] border-t border-[#F1F1EF] pt-3">
+                  <div>Started · {new Date(summary.started_at).toLocaleString()}</div>
+                  {summary.ends_at && <div>Ended · {new Date(summary.ends_at).toLocaleString()}</div>}
+                </div>
+              )}
+              {summary.void_reason && (
+                <div className="bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-3">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#7F1D1D]">Voided</div>
+                  <div className="text-[13px] text-[#7F1D1D] mt-1">{summary.void_reason}</div>
+                </div>
+              )}
+              {summary.note && (
+                <div className="text-[13px] text-[#6B7280] italic">{summary.note}</div>
+              )}
+            </div>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function Block({ label, value, mono, accent }) {
+  return (
+    <div className="bg-[#FAFAF7] border border-[#F1F1EF] rounded-xl px-3 py-2.5">
+      <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-[#9CA3AF]">{label}</div>
+      <div className={`text-[14px] font-semibold mt-0.5 ${mono ? "font-mono" : ""} ${accent ? "text-[#10B981]" : "text-[#0F0F12]"}`}>{value}</div>
     </div>
   );
 }

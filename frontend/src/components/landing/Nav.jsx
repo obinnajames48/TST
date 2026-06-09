@@ -9,6 +9,7 @@ const links = [
   { label: "Products", id: "products" },
   { label: "How it works", id: "how" },
   { label: "Pricing", id: "pricing" },
+  { label: "Affiliate", id: "affiliate" },
   { label: "FAQ", id: "faq" },
 ];
 

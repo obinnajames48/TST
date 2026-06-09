@@ -273,7 +273,14 @@ async def get_duel(duel_id: str, me: dict = CurrentUser):
     users_map = await _users_by_id([uid for uid in user_ids if uid])
     view = _serialize_duel(d, users_map, me["id"])
     series = compute_equity_series(d, points=40)
-    return {**view.model_dump(), "equity_series": series}
+    return {
+        **view.model_dump(),
+        "equity_series": series,
+        "started_at": d.get("started_at"),
+        "login_confirmed_a": d.get("login_confirmed_a"),
+        "login_confirmed_b": d.get("login_confirmed_b"),
+        "trading_started_at": d.get("trading_started_at"),
+    }
 
 
 @api.post("/duels/spawn")
@@ -828,6 +835,9 @@ async def admin_list_duels(_: bool = AdminAuth, status: Optional[str] = None):
             "account_size": d["account_size"], "entry_fee": d["entry_fee"], "prize": d["prize"],
             "pnl_a": pnl_a, "pnl_b": pnl_b, "time_left_seconds": time_left,
             "started_at": d.get("started_at"),
+            "login_confirmed_a": d.get("login_confirmed_a"),
+            "login_confirmed_b": d.get("login_confirmed_b"),
+            "trading_started_at": d.get("trading_started_at"),
         })
     return out
 

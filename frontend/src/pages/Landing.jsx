@@ -6,6 +6,7 @@ import ProductSuite from "@/components/landing/ProductSuite";
 import ProductDeepDive from "@/components/landing/ProductDeepDive";
 import HowItWorks from "@/components/landing/HowItWorks";
 import Pricing from "@/components/landing/Pricing";
+import Affiliate from "@/components/landing/Affiliate";
 import Faq from "@/components/landing/Faq";
 import Terms from "@/components/landing/Terms";
 import Ticker from "@/components/landing/Ticker";
@@ -22,6 +23,7 @@ export default function Landing() {
       <ProductDeepDive />
       <HowItWorks />
       <Pricing />
+      <Affiliate />
       <Faq />
       <Terms />
       <Ticker />

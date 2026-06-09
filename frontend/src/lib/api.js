@@ -40,6 +40,9 @@ export const spawnJoin = (account_size) =>
   http("/duels/spawn", { method: "POST", body: { account_size } });
 export const createCustomDuel = (payload) =>
   http("/duels/custom", { method: "POST", body: payload });
+export const getMt5Creds = (id) => http(`/duels/${id}/mt5`);
+export const confirmMt5Login = (id) =>
+  http(`/duels/${id}/confirm-login`, { method: "POST" });
 
 // ---------- Royale ----------
 export const listLobbies = (filters = {}) => {

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { X, Eye, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+import { X, Eye, ArrowUpRight, ArrowDownRight, Activity, Copy, Lock, Server, ShieldCheck, Clock as ClockIcon } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, YAxis, XAxis, Tooltip } from "recharts";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { useFetch } from "@/lib/useFetch";
-import { getDuel, getMe } from "@/lib/api";
+import { getDuel, getMe, getMt5Creds, confirmMt5Login } from "@/lib/api";
 
 const sampleTrades = [
   { side: "buy", instrument: "EUR/USD", size: "0.5 lot", entry: 1.0821, exit: 1.0856, pnl: 175 },
@@ -28,13 +30,28 @@ export default function Match() {
   }
 
   const youAreA = duel.trader_a?.username === me?.username;
+  const youAreB = duel.trader_b?.username === me?.username;
+  const isParticipant = youAreA || youAreB;
   const youName = youAreA ? duel.trader_a?.username : duel.trader_b?.username;
   const opName = youAreA ? duel.trader_b?.username : duel.trader_a?.username;
   const youPnl = youAreA ? duel.pnl_a : duel.pnl_b;
   const opPnl = youAreA ? duel.pnl_b : duel.pnl_a;
 
+  // MT5 3-min login window only shows for participants while trading hasn't started
+  const showMt5 = isParticipant && !duel.trading_started_at;
+  const myConfirmed = youAreA ? !!duel.login_confirmed_a : !!duel.login_confirmed_b;
+
   return (
     <div className="fixed inset-0 z-50 bg-[#FAFAF7] overflow-y-auto" data-testid="match-page">
+      <Mt5LoginDialog
+        open={showMt5}
+        duelId={duel.id}
+        startedAt={duel.started_at}
+        myConfirmed={myConfirmed}
+        opConfirmed={youAreA ? !!duel.login_confirmed_b : !!duel.login_confirmed_a}
+        accountSize={duel.account_size}
+        opName={opName}
+      />
       <div className="max-w-7xl mx-auto px-5 lg:px-8 py-5">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -145,3 +162,132 @@ function TraderColumn({ name, pnl, you, balance, color, series, sideKey }) {
     </div>
   );
 }
+
+// ------------- MT5 login dialog with 3-minute countdown -------------
+function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, accountSize, opName }) {
+  const [creds, setCreds] = useState(null);
+  const [now, setNow] = useState(() => Date.now());
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    if (!open || !duelId) return undefined;
+    let cancelled = false;
+    getMt5Creds(duelId).then((r) => { if (!cancelled) setCreds(r); }).catch(() => {});
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [open, duelId]);
+
+  if (!open) return null;
+  const start = startedAt ? new Date(startedAt).getTime() : now;
+  const deadline = start + 180_000; // 3 minutes
+  const remaining = Math.max(0, Math.floor((deadline - now) / 1000));
+  const minsStr = String(Math.floor(remaining / 60));
+  const secsStr = String(remaining % 60).padStart(2, "0");
+  const expired = remaining === 0;
+  const progress = Math.min(100, ((180 - remaining) / 180) * 100);
+
+  const copy = (txt, label) => {
+    navigator.clipboard.writeText(txt);
+    toast.success(`${label} copied`);
+  };
+
+  const onConfirm = async () => {
+    setConfirming(true);
+    try {
+      await confirmMt5Login(duelId);
+      toast.success("Login confirmed. Waiting for opponent…");
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  return (
+    <Dialog open={open}>
+      <DialogContent
+        data-testid="mt5-dialog"
+        className="max-w-xl rounded-3xl border-[#ECECEA] bg-white p-0 overflow-hidden"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
+        <div className="bg-[#0F0F12] text-white px-6 py-5">
+          <DialogHeader className="text-left">
+            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-white/40">
+              <Server className="w-3 h-3" /> Trading account · MetaTrader 5
+            </div>
+            <DialogTitle className="text-white text-xl mt-2">Confirm your login to start</DialogTitle>
+            <DialogDescription className="text-white/60 text-[13px]">
+              Both traders must confirm within 3 minutes. Your ${accountSize?.toLocaleString()} duel against @{opName} starts as soon as both confirm.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-5">
+          <div>
+            <div className="flex items-end justify-between mb-2">
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Login window</div>
+              <div className={`font-mono text-3xl font-bold tracking-tight ${expired ? "text-[#EF4444]" : remaining < 60 ? "text-[#EF4444]" : "text-[#0F0F12]"}`} data-testid="mt5-countdown">
+                {minsStr}:{secsStr}
+              </div>
+            </div>
+            <div className="h-1.5 bg-[#F1F1EF] rounded-full overflow-hidden">
+              <div className={`h-full transition-all ${expired ? "bg-[#EF4444]" : "bg-[#B4E04C]"}`} style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+
+          <div className="bg-[#FAFAF7] border border-[#ECECEA] rounded-2xl divide-y divide-[#ECECEA]">
+            <CredRow icon={Lock} label="Login" value={creds?.login || "—"} onCopy={() => copy(creds?.login, "Login")} testId="mt5-login" />
+            <CredRow icon={ShieldCheck} label="Password" value={creds?.password || "—"} mono onCopy={() => copy(creds?.password, "Password")} testId="mt5-password" />
+            <CredRow icon={Server} label="Server" value={creds?.server || "—"} onCopy={() => copy(creds?.server, "Server")} testId="mt5-server" />
+            <CredRow icon={ClockIcon} label="Platform" value={creds?.platform || "MetaTrader 5"} testId="mt5-platform" />
+          </div>
+
+          <div className="flex items-center gap-3 text-[12px]">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${myConfirmed ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#F3F4F6] text-[#6B7280]"}`} data-testid="mt5-you-status">
+              <span className={`w-1.5 h-1.5 rounded-full ${myConfirmed ? "bg-[#10B981]" : "bg-[#9CA3AF]"}`} />
+              You {myConfirmed ? "confirmed" : "pending"}
+            </span>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${opConfirmed ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#F3F4F6] text-[#6B7280]"}`} data-testid="mt5-op-status">
+              <span className={`w-1.5 h-1.5 rounded-full ${opConfirmed ? "bg-[#10B981]" : "bg-[#9CA3AF]"}`} />
+              @{opName || "Opponent"} {opConfirmed ? "confirmed" : "pending"}
+            </span>
+          </div>
+
+          <button
+            onClick={onConfirm}
+            disabled={confirming || myConfirmed || expired}
+            data-testid="mt5-confirm-btn"
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[14px] font-semibold py-3.5 rounded-full hover:bg-[#1F2024] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {myConfirmed ? "Login confirmed · waiting for opponent" : confirming ? "Confirming…" : expired ? "Window expired" : "I've logged in — confirm"}
+            {!myConfirmed && !expired && <span className="w-1.5 h-1.5 bg-[#B4E04C] rounded-full" />}
+          </button>
+          {expired && !myConfirmed && (
+            <div className="text-[12px] text-[#EF4444] text-center font-medium">3-minute window expired. This duel may be voided by an admin.</div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CredRow({ icon: Icon, label, value, mono, onCopy, testId }) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3" data-testid={testId}>
+      <div className="w-8 h-8 rounded-lg bg-white border border-[#ECECEA] grid place-items-center text-[#0F0F12]">
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">{label}</div>
+        <div className={`text-[14px] text-[#0F0F12] font-semibold ${mono ? "font-mono tracking-wide" : ""} truncate`}>{value}</div>
+      </div>
+      {onCopy && (
+        <button onClick={onCopy} className="w-8 h-8 grid place-items-center rounded-lg hover:bg-[#F5F5F2] text-[#6B7280]">
+          <Copy className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
