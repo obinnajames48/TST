@@ -80,8 +80,13 @@ export default function Hero() {
             Not the broker.
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg text-[#4B5563] leading-relaxed">
-            The Select Traders is a peer-to-peer competitive trading platform — equal accounts, same market, same clock. Win real money against real traders.
+          <p className="mt-5 text-[15px] font-medium text-[#A78BFA] tracking-tight" data-testid="hero-tagline">
+            The peer-to-peer arena for world-class traders. Trade smart. Compete harder.
+          </p>
+
+          <p className="mt-4 max-w-xl text-lg text-[#4B5563] leading-relaxed" data-testid="hero-subhead">
+            The Select Traders is a peer-to-peer world-class trading platform. Start trading the market against real people you can actually win against —{" "}
+            <span className="font-semibold text-[#0F0F12]">the house is the trap.</span>
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">

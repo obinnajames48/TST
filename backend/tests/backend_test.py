@@ -170,6 +170,54 @@ class TestAdminSettlements:
             assert "summary" in data
 
 
+# ---------- Open Duels (pairing only) ----------
+class TestOpenDuels:
+    def test_open_duels_returns_only_pairing(self, client):
+        r = client.get(f"{BASE_URL}/api/duels/open", headers={"X-Username": "TradeFury"})
+        assert r.status_code == 200, r.text
+        items = r.json()
+        assert isinstance(items, list)
+        for d in items:
+            assert d.get("status") == "pairing", f"Open duel has non-pairing status: {d.get('status')}"
+
+    def test_open_duels_separate_from_live(self, client):
+        opens = client.get(f"{BASE_URL}/api/duels/open", headers={"X-Username": "TradeFury"}).json()
+        lives = client.get(f"{BASE_URL}/api/duels/live", headers={"X-Username": "TradeFury"}).json()
+        open_ids = {d["id"] for d in opens}
+        live_ids = {d["id"] for d in lives}
+        assert open_ids.isdisjoint(live_ids), "Same duel appears in both lanes"
+
+
+# ---------- Trading Station ----------
+class TestTradingStation:
+    def test_station_returns_grouped(self, client):
+        r = client.get(f"{BASE_URL}/api/me/trading-station",
+                       headers={"X-Username": "TradeFury"})
+        assert r.status_code == 200, r.text
+        data = r.json()
+        assert set(data.keys()) == {"active", "pending", "completed"}
+        for k in ("active", "pending", "completed"):
+            assert isinstance(data[k], list)
+
+    def test_station_active_contains_live_duels(self, client, spawned_duel):
+        # spawned_duel was a live duel created for TradeFury
+        data = client.get(f"{BASE_URL}/api/me/trading-station",
+                          headers={"X-Username": "TradeFury"}).json()
+        active_ids = {r["id"] for r in data["active"]}
+        assert spawned_duel["duel_id"] in active_ids, \
+            f"Spawned live duel {spawned_duel['duel_id']} not in active station rows"
+
+    def test_station_row_schema(self, client):
+        data = client.get(f"{BASE_URL}/api/me/trading-station",
+                          headers={"X-Username": "TradeFury"}).json()
+        rows = data["active"] + data["pending"] + data["completed"]
+        assert len(rows) > 0, "Station has no rows for TradeFury"
+        sample = rows[0]
+        for k in ("id", "kind", "label", "status", "link"):
+            assert k in sample, f"missing key {k} in station row"
+        assert sample["link"].startswith("/app/")
+
+
 # ---------- Landing affiliate (public via me) ----------
 class TestAffiliate:
     def test_me_affiliate(self, client):

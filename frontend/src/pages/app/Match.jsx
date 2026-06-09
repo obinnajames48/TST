@@ -20,6 +20,7 @@ export default function Match() {
   const { matchId } = useParams();
   const { data: duel } = useFetch(() => getDuel(matchId), { pollMs: 2000, deps: [matchId] });
   const { data: me } = useFetch(getMe);
+  const [mt5Dismissed, setMt5Dismissed] = useState(false);
 
   if (!duel) {
     return (
@@ -37,8 +38,8 @@ export default function Match() {
   const youPnl = youAreA ? duel.pnl_a : duel.pnl_b;
   const opPnl = youAreA ? duel.pnl_b : duel.pnl_a;
 
-  // MT5 3-min login window only shows for participants while trading hasn't started
-  const showMt5 = isParticipant && !duel.trading_started_at;
+  // MT5 3-min login window: shows for participants while trading hasn't started AND not dismissed
+  const showMt5 = isParticipant && !duel.trading_started_at && !mt5Dismissed;
   const myConfirmed = youAreA ? !!duel.login_confirmed_a : !!duel.login_confirmed_b;
 
   return (
@@ -51,6 +52,8 @@ export default function Match() {
         opConfirmed={youAreA ? !!duel.login_confirmed_b : !!duel.login_confirmed_a}
         accountSize={duel.account_size}
         opName={opName}
+        onClose={() => setMt5Dismissed(true)}
+        onExitMatch={() => navigate("/app/duel")}
       />
       <div className="max-w-7xl mx-auto px-5 lg:px-8 py-5">
         <div className="flex items-center justify-between mb-6">
@@ -164,7 +167,7 @@ function TraderColumn({ name, pnl, you, balance, color, series, sideKey }) {
 }
 
 // ------------- MT5 login dialog with 3-minute countdown -------------
-function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, accountSize, opName }) {
+function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, accountSize, opName, onClose, onExitMatch }) {
   const [creds, setCreds] = useState(null);
   const [now, setNow] = useState(() => Date.now());
   const [confirming, setConfirming] = useState(false);
@@ -195,7 +198,7 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
     setConfirming(true);
     try {
       await confirmMt5Login(duelId);
-      toast.success("Login confirmed. Waiting for opponent…");
+      toast.success("Login confirmed. You can close this and watch the chart while waiting for your opponent.");
     } catch (e) {
       toast.error(e.message);
     } finally {
@@ -204,15 +207,21 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
   };
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose?.()}>
       <DialogContent
         data-testid="mt5-dialog"
         className="max-w-xl rounded-3xl border-[#ECECEA] bg-white p-0 overflow-hidden"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <div className="bg-[#0F0F12] text-white px-6 py-5">
-          <DialogHeader className="text-left">
+        <div className="bg-[#0F0F12] text-white px-6 py-5 relative">
+          <button
+            onClick={() => onClose?.()}
+            data-testid="mt5-dialog-close"
+            className="absolute top-4 right-4 w-8 h-8 grid place-items-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            aria-label="Close MT5 dialog"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <DialogHeader className="text-left pr-10">
             <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-white/40">
               <Server className="w-3 h-3" /> Trading account · MetaTrader 5
             </div>
@@ -258,11 +267,30 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
             onClick={onConfirm}
             disabled={confirming || myConfirmed || expired}
             data-testid="mt5-confirm-btn"
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[14px] font-semibold py-3.5 rounded-full hover:bg-[#1F2024] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[14px] font-semibold py-3.5 rounded-full hover:bg-[#1F2024] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {myConfirmed ? "Login confirmed · waiting for opponent" : confirming ? "Confirming…" : expired ? "Window expired" : "I've logged in — confirm"}
             {!myConfirmed && !expired && <span className="w-1.5 h-1.5 bg-[#B4E04C] rounded-full" />}
           </button>
+
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <button
+              onClick={() => onExitMatch?.()}
+              data-testid="mt5-exit-match"
+              className="text-[12px] font-medium text-[#6B7280] hover:text-[#EF4444] transition-colors"
+            >
+              Exit match
+            </button>
+            {myConfirmed && (
+              <button
+                onClick={() => onClose?.()}
+                data-testid="mt5-watch-chart"
+                className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0F0F12] hover:gap-2 transition-all"
+              >
+                Watch the chart while you wait →
+              </button>
+            )}
+          </div>
           {expired && !myConfirmed && (
             <div className="text-[12px] text-[#EF4444] text-center font-medium">3-minute window expired. This duel may be voided by an admin.</div>
           )}

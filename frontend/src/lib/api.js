@@ -35,6 +35,8 @@ export const getLiveStats = () => http("/stats/live");
 
 // ---------- Duels ----------
 export const listLiveDuels = () => http("/duels/live");
+export const listOpenDuels = () => http("/duels/open");
+export const getTradingStation = () => http("/me/trading-station");
 export const getDuel = (id) => http(`/duels/${id}`);
 export const spawnJoin = (account_size) =>
   http("/duels/spawn", { method: "POST", body: { account_size } });

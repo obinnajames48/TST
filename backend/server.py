@@ -264,6 +264,123 @@ async def list_live_duels(me: dict = CurrentUser):
     return [_serialize_duel(d, users_map, me["id"]).model_dump() for d in docs]
 
 
+@api.get("/duels/open")
+async def list_open_duels(me: dict = CurrentUser):
+    """Pairing duels (waiting for an opponent). Used by the Broadcast 'Open' lanes."""
+    docs = await db.find_many(db.duels(), {"status": "pairing"}, sort=[("started_at", -1)])
+    user_ids = {d.get("trader_a_id") for d in docs} | {d.get("trader_b_id") for d in docs}
+    user_ids.discard(None)
+    users_map = await _users_by_id(list(user_ids))
+    return [_serialize_duel(d, users_map, me["id"]).model_dump() for d in docs]
+
+
+@api.get("/me/trading-station")
+async def my_trading_station(me: dict = CurrentUser):
+    """All events involving the current user grouped by status (active / pending / completed)."""
+    my_id = me["id"]
+    duel_docs = await db.find_many(
+        db.duels(),
+        {"$or": [{"trader_a_id": my_id}, {"trader_b_id": my_id}]},
+        sort=[("started_at", -1)],
+        limit=200,
+    )
+    user_ids = {d.get("trader_a_id") for d in duel_docs} | {d.get("trader_b_id") for d in duel_docs}
+    user_ids.discard(None)
+    users_map = await _users_by_id(list(user_ids))
+
+    def _row_from_duel(d):
+        pnl_a, pnl_b, time_left = compute_duel_pnl(d)
+        my_pnl = pnl_a if d.get("trader_a_id") == my_id else pnl_b
+        opponent_id = d.get("trader_b_id") if d.get("trader_a_id") == my_id else d.get("trader_a_id")
+        opponent = users_map.get(opponent_id, {})
+        return {
+            "id": d["id"],
+            "kind": "duel-pro" if d.get("type") == "custom" else "duel-standard",
+            "label": "1v1 Duel · Pro" if d.get("type") == "custom" else "1v1 Duel · Standard",
+            "status": d.get("status"),
+            "opponent": opponent.get("username") if opponent else "—",
+            "account_size": d.get("account_size"),
+            "entry_fee": d.get("entry_fee"),
+            "prize": d.get("prize"),
+            "pnl": my_pnl,
+            "time_left_seconds": time_left,
+            "started_at": d.get("started_at"),
+            "link": f"/app/match/{d['id']}",
+        }
+
+    rows = [_row_from_duel(d) for d in duel_docs]
+
+    # Royale registrations (pending lobbies the user joined)
+    royale_docs = await db.find_many(
+        db.royale_lobbies(),
+        {"registered_ids": my_id},
+        sort=[("starts_at", 1)],
+        limit=50,
+    )
+    for r in royale_docs:
+        status = "completed" if r.get("status") == "completed" else ("active" if r.get("status") == "live" else "pending")
+        rows.append({
+            "id": r["id"],
+            "kind": "royale",
+            "label": f"Trading Royale · {r.get('name', 'Lobby')}",
+            "status": status,
+            "opponent": f"{len(r.get('registered_ids', []))}/{r.get('capacity', 0)} traders",
+            "account_size": r.get("account_size"),
+            "entry_fee": r.get("entry_fee"),
+            "prize": r.get("prize_pool"),
+            "pnl": None,
+            "time_left_seconds": compute_starts_in(r) if status == "pending" else None,
+            "started_at": r.get("starts_at"),
+            "link": f"/app/royale",
+        })
+
+    # Tournament registrations
+    tourn_docs = await db.find_many(
+        db.tournaments(),
+        {"registered_ids": my_id},
+        sort=[("start_date", 1)],
+        limit=20,
+    )
+    for t in tourn_docs:
+        stage = t.get("stage", "")
+        status = "completed" if stage == "Completed" else ("active" if stage in ("Group Stage", "Knockout", "Final") else "pending")
+        rows.append({
+            "id": t["id"],
+            "kind": "tournament",
+            "label": f"Multi Trader · {t.get('name')}",
+            "status": status,
+            "opponent": f"{len(t.get('registered_ids', []))}/{t.get('capacity', 0)} registered",
+            "account_size": t.get("account_size"),
+            "entry_fee": t.get("entry_fee"),
+            "prize": t.get("prize_pool"),
+            "pnl": None,
+            "time_left_seconds": None,
+            "started_at": t.get("start_date"),
+            "link": f"/app/tournament",
+        })
+
+    def _bucket(r):
+        s = r.get("status")
+        if s in ("live",) or (r["kind"] in ("royale", "tournament") and s == "active"):
+            return "active"
+        if s in ("completed", "voided"):
+            return "completed"
+        return "pending"
+
+    grouped = {"active": [], "pending": [], "completed": []}
+    for r in rows:
+        grouped[_bucket(r)].append(r)
+
+    # Sort: active by time_left asc, pending by started_at asc, completed by started_at desc
+    def _key(x):
+        return x.get("started_at") or ""
+    grouped["active"].sort(key=lambda x: x.get("time_left_seconds") or 99999)
+    grouped["pending"].sort(key=_key)
+    grouped["completed"].sort(key=_key, reverse=True)
+
+    return grouped
+
+
 @api.get("/duels/{duel_id}")
 async def get_duel(duel_id: str, me: dict = CurrentUser):
     d = await db.find_one(db.duels(), {"id": duel_id})

@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Swords,
+  Radio,
   Crown,
   Trophy,
   Users,
@@ -27,6 +28,7 @@ const nav = [
 ];
 
 const navSecondary = [
+  { to: "/app/station", label: "Trading Station", icon: Radio },
   { to: "/app/stats", label: "My Stats", icon: BarChart3 },
   { to: "/app/wallet", label: "Wallet", icon: Wallet },
   { to: "/app/affiliate", label: "Affiliate", icon: Sparkles },

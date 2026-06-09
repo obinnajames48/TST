@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, ArrowRight, Sparkles, Lock, Clock } from "lucide-react";
+import { Eye, ArrowRight, Sparkles, Lock, Clock, Hourglass, Radio } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "@/components/app/PageHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } f
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFetch } from "@/lib/useFetch";
-import { listLiveDuels, spawnJoin, createCustomDuel, getMe } from "@/lib/api";
+import { listLiveDuels, listOpenDuels, spawnJoin, createCustomDuel, getMe } from "@/lib/api";
 
 const accountSizes = [
   { size: 5000, entry: 60, prize: 100 },
@@ -24,13 +24,24 @@ const accountSizes = [
 export default function Duel() {
   const navigate = useNavigate();
   const { data: liveDuelsRaw } = useFetch(listLiveDuels, { pollMs: 3000 });
+  const { data: openDuelsRaw } = useFetch(listOpenDuels, { pollMs: 3000 });
   const liveDuels = liveDuelsRaw || [];
+  const openDuels = openDuelsRaw || [];
   const { data: me } = useFetch(getMe);
   const [spawnOpen, setSpawnOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [phase, setPhase] = useState("idle");
 
   const isPro = me?.plan === "PRO";
+
+  // Four ordered lanes as requested:
+  // 1. Open Pro Duels  2. Open Standard Duels  3. Live Pro Duels  4. Live Standard Duels
+  const lanes = useMemo(() => [
+    { key: "open-pro", title: "Open Pro Duels", subtitle: "Custom rules. Waiting for a challenger.", tone: "pro", state: "open", items: openDuels.filter((d) => d.custom) },
+    { key: "open-standard", title: "Open Standard Duels", subtitle: "Standard rules. Waiting to pair.", tone: "standard", state: "open", items: openDuels.filter((d) => !d.custom) },
+    { key: "live-pro", title: "Live Pro Duels", subtitle: "Custom rules. In progress.", tone: "pro", state: "live", items: liveDuels.filter((d) => d.custom) },
+    { key: "live-standard", title: "Live Standard Duels", subtitle: "Standard rules. In progress.", tone: "standard", state: "live", items: liveDuels.filter((d) => !d.custom) },
+  ], [openDuels, liveDuels]);
 
   const startSpawn = async (acc) => {
     setSelectedAccount(acc);
@@ -67,32 +78,10 @@ export default function Duel() {
           <TabsTrigger value="create" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[#0F0F12] data-[state=active]:text-white" data-testid="tab-create">Create</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="broadcast" className="mt-6">
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {liveDuels.map((m) => (
-              <div key={m.id} data-testid={`broadcast-card-${m.id}`} className={`relative rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${m.custom ? "bg-gradient-to-br from-[#EDE7FE] to-[#FAFAF7] border-[#A78BFA]/40" : "bg-white border-[#ECECEA]"}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    {m.custom ? <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-[#A78BFA] text-white px-2 py-0.5 rounded-full"><Sparkles className="w-2.5 h-2.5" /> Pro Custom</span> : <span className="text-[10px] font-bold uppercase tracking-wider bg-[#F3F4F6] text-[#6B7280] px-2 py-0.5 rounded-full">Standard</span>}
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#EF4444]"><span className="w-1.5 h-1.5 bg-[#EF4444] rounded-full" />LIVE</span>
-                  </div>
-                  <span className="font-mono text-xs text-[#6B7280]">{m.id}</span>
-                </div>
-                <div className="space-y-3 mb-4">
-                  <Trader name={m.trader_a?.username || "?"} pnl={m.pnl_a} />
-                  <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">vs</div>
-                  <Trader name={m.trader_b?.username || "?"} pnl={m.pnl_b} />
-                </div>
-                <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-                  <Pill label="Account" value={`$${(m.account_size / 1000).toFixed(0)}K`} />
-                  <Pill label="Time" value={formatTime(m.time_left_seconds)} />
-                </div>
-                <button onClick={() => navigate(`/app/match/${m.id}`)} data-testid={`spectate-${m.id}`} className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[13px] font-medium py-2.5 rounded-full hover:bg-[#1F2024]">
-                  <Eye className="w-3.5 h-3.5" /> Spectate · {m.spectators}
-                </button>
-              </div>
-            ))}
-          </div>
+        <TabsContent value="broadcast" className="mt-6 space-y-10" data-testid="broadcast-lanes">
+          {lanes.map((lane) => (
+            <DuelLane key={lane.key} lane={lane} onJoin={(m) => navigate(`/app/match/${m.id}`)} />
+          ))}
         </TabsContent>
 
         <TabsContent value="spawn" className="mt-6">
@@ -306,4 +295,91 @@ function Field({ label, children }) {
 
 function Row({ k, v }) {
   return <div className="flex items-center justify-between border-b border-[#A78BFA]/15 pb-2"><span className="text-[#6B7280]">{k}</span><span className="font-mono font-semibold text-[#0F0F12]">{v}</span></div>;
+}
+
+function DuelLane({ lane, onJoin }) {
+  const isPro = lane.tone === "pro";
+  const isLive = lane.state === "live";
+  return (
+    <div data-testid={`lane-${lane.key}`}>
+      <div className="flex items-end justify-between gap-3 mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isPro ? "bg-[#A78BFA] text-white" : "bg-[#0F0F12] text-white"}`}>
+              {isPro ? <><Sparkles className="w-2.5 h-2.5" /> Pro</> : "Standard"}
+            </span>
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full ${isLive ? "bg-[#EF4444]/10 text-[#EF4444]" : "bg-[#E6F4C2] text-[#0F0F12]"}`}>
+              {isLive ? <><Radio className="w-2.5 h-2.5" /> LIVE</> : <><Hourglass className="w-2.5 h-2.5" /> OPEN</>}
+            </span>
+            <span className="text-[11px] font-mono text-[#9CA3AF]">{lane.items.length}</span>
+          </div>
+          <h3 className="text-lg font-bold tracking-tight text-[#0F0F12]">{lane.title}</h3>
+          <div className="text-[12.5px] text-[#6B7280]">{lane.subtitle}</div>
+        </div>
+      </div>
+
+      {lane.items.length === 0 ? (
+        <div className="bg-white border border-dashed border-[#ECECEA] rounded-2xl p-8 text-center">
+          <div className="text-[13px] text-[#6B7280]">
+            No {lane.state === "open" ? "open" : "live"} {isPro ? "Pro" : "Standard"} duels right now.
+            {lane.state === "open" && (isPro ? " Be the first to create one in the Create tab." : " Hit Spawn centre to start one.")}
+          </div>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {lane.items.map((m) => (
+            <DuelCard key={m.id} m={m} isLive={isLive} isPro={isPro} onJoin={onJoin} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DuelCard({ m, isLive, isPro, onJoin }) {
+  return (
+    <div
+      data-testid={`broadcast-card-${m.id}`}
+      className={`relative rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${isPro ? "bg-gradient-to-br from-[#EDE7FE] to-[#FAFAF7] border-[#A78BFA]/40" : "bg-white border-[#ECECEA]"}`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-mono text-xs text-[#6B7280]">{m.id}</span>
+        {isLive ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#EF4444]"><span className="w-1.5 h-1.5 bg-[#EF4444] rounded-full pulse-soft" />LIVE</span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#0F0F12]"><Hourglass className="w-2.5 h-2.5" /> WAITING</span>
+        )}
+      </div>
+      {isLive ? (
+        <div className="space-y-3 mb-4">
+          <Trader name={m.trader_a?.username || "?"} pnl={m.pnl_a} />
+          <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">vs</div>
+          <Trader name={m.trader_b?.username || "?"} pnl={m.pnl_b} />
+        </div>
+      ) : (
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 rounded-full bg-[#0F0F12] text-white text-[10px] grid place-items-center font-bold">{(m.trader_a?.username || "?")[0]}</span>
+            <span className="text-[13px] font-medium text-[#0F0F12]">@{m.trader_a?.username || "Unknown"}</span>
+          </div>
+          <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF] my-2">vs</div>
+          <div className="flex items-center gap-2 text-[#9CA3AF]">
+            <span className="w-7 h-7 rounded-full bg-[#F3F4F6] text-[#9CA3AF] text-[10px] grid place-items-center font-bold">?</span>
+            <span className="text-[13px] italic">Waiting for opponent…</span>
+          </div>
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+        <Pill label="Account" value={`$${(m.account_size / 1000).toFixed(0)}K`} />
+        <Pill label={isLive ? "Time left" : "Prize"} value={isLive ? formatTime(m.time_left_seconds) : `$${(m.prize || 0).toLocaleString()}`} />
+      </div>
+      <button
+        onClick={() => onJoin(m)}
+        data-testid={`${isLive ? "spectate" : "view-open"}-${m.id}`}
+        className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[13px] font-medium py-2.5 rounded-full hover:bg-[#1F2024]"
+      >
+        {isLive ? (<><Eye className="w-3.5 h-3.5" /> Spectate · {m.spectators}</>) : (<><ArrowRight className="w-3.5 h-3.5" /> View details</>)}
+      </button>
+    </div>
+  );
 }

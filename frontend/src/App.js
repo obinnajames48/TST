@@ -15,6 +15,8 @@ import Settings from "@/pages/app/Settings";
 import Notifications from "@/pages/app/Notifications";
 import Match from "@/pages/app/Match";
 import Affiliate from "@/pages/app/Affiliate";
+import TradingStation from "@/pages/app/TradingStation";
+import TermsPage from "@/pages/Terms";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminLogin from "@/pages/admin/Login";
 import AdminOverview from "@/pages/admin/Overview";
@@ -32,10 +34,12 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/app/match/:matchId" element={<Match />} />
           <Route path="/app" element={<ClientLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="duel" element={<Duel />} />
+            <Route path="station" element={<TradingStation />} />
             <Route path="royale" element={<Royale />} />
             <Route path="tournament" element={<Tournament />} />
             <Route path="tagteam" element={<TagTeam />} />

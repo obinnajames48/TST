@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration 4 testing — landing copy refresh (hero/mission/innovation/terms), Duel broadcast 4-lane reorganization, Trading Station, and MT5 dialog dismissibility. Backend 19/19 pytest tests pass (including 5 new cases for /api/duels/open + /api/me/trading-station). Frontend: hero copy, mission/vision rewrite, innovation cards (incl. 'New' badge on card 3 with dark bg), terms route, broadcast lane order, sidebar Trading Station link → /app/station with grouped active/pending/completed rows — ALL verified. MT5 dialog close X path verified once; confirm→watch-chart path was flaky during retests (transient ingress aborts on the preview URL during a ~3 min window). Backend logic for confirm-login is correct (test_confirm_login_persists PASS) so this is most likely an ingress/timing flake, not a code bug — recommend main agent does a quick self-verify.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "ingress (preview URL)", "issue": "External preview URL was unreachable for ~2-3 min during testing (TLS handshake succeeded but no bytes returned). Backend itself remained healthy. After `sudo supervisorctl restart backend` the URL began responding again. Recommend monitoring."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "MT5 dialog · confirm → watch-chart", "issue": "On a flaky network moment, after clicking [data-testid=mt5-confirm-btn] the button reverted from 'Confirming…' back to 'I've logged in — confirm' (instead of advancing to 'Login confirmed · waiting for opponent') and [data-testid=mt5-watch-chart] did NOT render within 15s. Backend confirm-login persists correctly (pytest PASS); useFetch polls every 2s. Most likely a transient network/poll race. Could not reproduce on a 2nd attempt because subsequent navigations to /app/match/<id> also timed out (>30s) during the same window. Recommend a manual re-verify or add a small optimistic update to set myConfirmed=true client-side immediately after the POST returns 200 (avoids waiting for next poll).", "affected_selectors": ["[data-testid=mt5-watch-chart]", "[data-testid=mt5-confirm-btn]"]}
+    ],
+    "design_issues": [
+      {"screen": "/app/match Equity chart", "issues": ["(Carry-over from iteration 2/3) Recharts logs 'width(-1) height(-1)' warnings on initial render. Cosmetic only."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional) Optimistically set local myConfirmed=true in Match.jsx Mt5LoginDialog onConfirm success branch so the 'Watch the chart' button surfaces immediately without waiting for the 2s poll. Mitigates the flake observed.",
+    "(Optional/Carry-over) Silence Recharts width/height(-1) warnings on the Match.jsx equity chart by giving ResponsiveContainer a minHeight.",
+    "(Carry-over) Split server.py (~1340 lines) into routers; remove dead route-mount loop at lines ~1310-1320."
+  ],
+  "critical_code_review_comments": [
+    "Match.jsx Mt5LoginDialog onConfirm awaits the API but only relies on useFetch poll (2s) to flip myConfirmed → the 'Watch the chart' button appears late. Set local state for instant UX.",
+    "TradingStation.jsx EventList: `it.time_left_seconds` guard on line 113 is truthy-check; backend may return 0 which would also hide the row — consider explicit !== null/undefined.",
+    "/api/me/trading-station bucket logic groups royale stage='filling' into pending and tournament stage='Registration' into pending — correct, but tournament stage 'Completed' isn't handled if registered_ids no longer contains the user (filter is on registered_ids so it's fine). OK.",
+    "server.py double-includes the api router at the end (line 811 and 1324). Idempotent for identical routes but fragile — remove the early include and only mount once after all routes are declared.",
+    "Duel.jsx broadcast tab does the right thing — DOM order verified: lane-open-pro → lane-open-standard → lane-live-pro → lane-live-standard."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (added TestOpenDuels with 2 cases and TestTradingStation with 3 cases — 19 total tests, all passing)"
+  ],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "~85% (5/6 critical flows verified; MT5 confirm→watch-chart not fully confirmed due to ingress flake)"},
+  "test_credentials": "Admin admin@selecttraders.com / admin-2026 (verified). Client mocked X-Username header — default @TradeFury.",
+  "seed_data_creation": "Spawn endpoint created additional live duels during MT5 testing — persist as 'live' status. TradeFury now has 16 active duels in /api/me/trading-station.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All backend endpoints stable. Tests at /app/backend/tests/backend_test.py — run with `pytest /app/backend/tests/ -v`. New endpoints this iteration: GET /api/duels/open (returns only status=pairing), GET /api/me/trading-station (grouped active/pending/completed for current user). UI testids: trading-station-page, station-tab-{active|pending|completed}, station-row-{id}, station-empty-{variant}, sidebar-link-trading-station, broadcast-lanes, lane-{open-pro|open-standard|live-pro|live-standard}, innovation-card-{1|2|3}, terms-fullpage-link, terms-page, terms-back-link, mt5-dialog, mt5-dialog-close, mt5-watch-chart, mt5-exit-match. NOTE: preview URL had a transient outage during testing (recovered after backend restart). If MT5 watch-chart retest is needed, increase wait_for_selector timeout to 20s and verify the confirm POST returns 200 in network logs.",
+  "rca of the issue": "MT5 confirm→watch-chart flake RCA: button label transitions from 'I've logged in — confirm' → 'Confirming…' (while POST in-flight) → either 'Login confirmed · waiting for opponent' (if poll returns updated login_confirmed_a) OR back to 'I've logged in — confirm' (if poll hasn't run yet). The 'Watch the chart' button is gated on `myConfirmed` which is derived from polled duel.login_confirmed_a. During a network slowdown, the poll could be delayed/aborted, and the button label flicks back, masking the success. Mitigation: in onConfirm() set a local `setMyConfirmedLocal(true)` after the API call resolves; merge with prop in the render. Reproduction: throttle network or POST under slow ingress; expect watch-chart not to appear within 5s."
+}
