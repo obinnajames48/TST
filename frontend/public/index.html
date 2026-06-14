@@ -22,6 +22,10 @@
         Learn how to configure a non-root public URL by running `npm run build`.
         -->
         <title>Emergent | Fullstack App</title>
+        <script>
+            // Apply theme before paint to avoid FOUC. Restricted to client/admin areas.
+            (function(){try{var k="tst-theme";var s=localStorage.getItem(k);var t=(s==="dark"||s==="light")?s:(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");var p=location.pathname||"";if(p.indexOf("/app")===0||p.indexOf("/admin")===0){if(t==="dark")document.documentElement.classList.add("dark");}}catch(e){}})();
+        </script>
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
     </head>
