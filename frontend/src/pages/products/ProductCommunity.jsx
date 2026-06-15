@@ -27,11 +27,10 @@ export default function ProductCommunity() {
       accent="dark"
       badge="Coming soon"
       stats={[
-        { label: "Format", v: "TBA" },
+        { label: "Format", value: "TBA" },
         { label: "Season length", value: "4 – 12 weeks" },
         { label: "Roster size", value: "10 – 100" },
         { label: "Status", value: "Pre-launch" },
-        { label: "Notify list", value: "Open" },
       ]}
       model={{
         title: "Imagine your Discord on a leaderboard.",

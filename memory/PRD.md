@@ -8,7 +8,23 @@ Lime green #B4E04C + soft purple #A78BFA on off-white #FAFAF7. Satoshi font. Mod
 
 ## What's Built
 
-### v4.2 (2026-02-15) — Trading Station detail · Tournament journey · Royale phases (CURRENT)
+### v4.3 (2026-02-15) — Landing restructure + dedicated product pages (CURRENT)
+- **Removed** the bulky `ProductDeepDive` section from the landing page — replaced with a slim, scannable flow.
+- **Simplified `Affiliate` section** on landing: single teaser card with 4 tier chips (Rookie 10% → Legend 25%), "See full program" → `/products/affiliate`, "Get your referral link" → `/app/affiliate`.
+- **6 new dedicated product pages** powered by a shared `ProductPageLayout` component:
+  - `/products/duel` — 1v1 Duel (8 tier prize table + 10 rules)
+  - `/products/royale` — Trading Royale (two-phase elimination explained)
+  - `/products/tournament` — Multi Trader (5-stage prize breakdown)
+  - `/products/tagteam` — Tag Team Trading (3v3 / 5v5 formats)
+  - `/products/community` — Community Battles (coming soon + notify form)
+  - `/products/affiliate` — Affiliate program (full 4-tier explainer + how-payouts-work cards)
+- Each page = Nav · back-to-landing · hero (eyebrow + icon + name + tagline + 4-stat grid) · "The model" · "Rules of engagement" grid · "Prize structure" table · bottom CTA strip · Footer.
+- **Nav now has a Products dropdown** (hover-to-open) listing all 6 product pages with descriptions.
+- **Cross-page navigation works**: clicking nav links (How it works, Pricing, FAQ) from a product page routes back to `/` with the matching hash and the landing page smoothly scrolls.
+- **ProductSuite cards** on the landing page are now Links that route to each `/products/*` page.
+- **Tests**: 43/43 Playwright frontend tests pass. All routes, hover dropdown, dedicated pages, slim affiliate teaser verified.
+
+### v4.2 (2026-02-15) — Trading Station detail · Tournament journey · Royale phases
 - **Trading Station detail dialog** (`/app/frontend/src/components/app/StationDetailDialog.jsx`): clicking "Account" on any Trading Station row opens a dialog with **MT5 credentials** (login/password/server/platform — plain text with copy buttons), **side-by-side equity curves** for me vs opponent (duels), or **live leaderboard** + phase banner (royales), or **journey path** + prize earned (tournaments).
 - **Multi Trader journey view** (`/app/frontend/src/pages/app/Tournament.jsx`): new "My Journey" tab is default — lists every tournament I'm in with my exit stage + prize won, expandable to show per-stage path (Group → R16 → QF → SF → Final). "Expand to full bracket" reveals the complete 32-player knockout bracket with every match result + a highlighted "You" badge wherever the user appears.
 - **Trading Royale two-phase elimination engine** (`/app/backend/simulator.py: compute_royale_state` + `compute_royale_leaderboard`):
