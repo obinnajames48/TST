@@ -8,7 +8,13 @@ Lime green #B4E04C + soft purple #A78BFA on off-white #FAFAF7. Satoshi font. Mod
 
 ## What's Built
 
-### v4.6 (2026-02-15) — Dedicated FAQ page (CURRENT)
+### v4.7 (2026-02-15) — Multi Trader mechanics corrected (CURRENT)
+- **Group stage is NOT head-to-head anymore**. All 4 traders in a group trade simultaneously for a single fixed timeline (1 or 5 trading days). Top 2 by **equity at end of timeline** advance to R16.
+- **Knockouts (R16/QF/SF/Final)** are sealed 1v1 matches over the same 1- or 5-trading-day timeline — both traders trade their own account, **highest equity at the buzzer advances**. No real-time interaction.
+- **Tiebreaker** (equity exact tie): max equity reached during the stage, then min drawdown.
+- **Updated everywhere**: `/products/tournament` model + rules + FAQ; in-app Tournament bracket page group cards now show **Rank by equity** (not W-D-L) with "TOP 2 BY EQUITY ADVANCE" caption; journey card details now read "Rank N/4 by equity" instead of "2-1-0"; seed groups recalculated with `advanced=top2 by equity`; ProductSuite card detail says "Equity-based progression"; `_build_journey` updated.
+
+### v4.6 (2026-02-15) — Dedicated FAQ page
 - **New `/faq` route** with comprehensive product-segmented FAQ — 69 detailed Q&As across 8 sections in order: **General** (10) · **1v1 Duel** (11) · **Trading Royale** (9) · **Multi Trader** (8) · **Tag Team** (7) · **Community Battles** (6) · **Affiliate Program** (8) · **Trading & MT5** (10).
 - **Sticky desktop sidebar** with active-section highlighting based on scroll position. **Mobile horizontal-scroll pill selector** below the hero.
 - **Live search** at the top of the page filters questions + answers in real-time across all sections with `<mark>` highlight on matches; empty-state shown when nothing matches.

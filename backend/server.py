@@ -757,13 +757,18 @@ def _build_journey(t: dict, user_id: str) -> dict:
     """Build the per-user journey across group stage + bracket stages."""
     group_record = None
     for g in t.get("groups", []):
-        for r in g.get("rows", []):
+        rows = g.get("rows", [])
+        for r in rows:
             if r.get("user_id") == user_id:
+                # Compute equity rank in this group
+                sorted_eq = sorted(rows, key=lambda x: x.get("equity", 0), reverse=True)
+                rank = next((i + 1 for i, rr in enumerate(sorted_eq) if rr.get("user_id") == user_id), len(rows))
                 group_record = {
                     "group": g["label"],
-                    "w": r["w"], "d": r["d"], "l": r["l"],
+                    "rank": rank,
+                    "of": len(rows),
                     "equity": r["equity"],
-                    "advanced": r.get("advanced", False),
+                    "advanced": rank <= 2,
                 }
                 break
         if group_record:
@@ -776,7 +781,7 @@ def _build_journey(t: dict, user_id: str) -> dict:
             "stage": "Group Stage",
             "result": "Advanced" if group_record["advanced"] else "Eliminated",
             "opponent": f"Group {group_record['group']}",
-            "details": f"{group_record['w']}-{group_record['d']}-{group_record['l']}",
+            "details": f"Rank {group_record['rank']}/{group_record['of']} by equity",
             "pnl": group_record["equity"],
             "advanced": group_record["advanced"],
         })

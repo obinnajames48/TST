@@ -195,29 +195,33 @@ function BracketView({ tournament, onBack }) {
 
         {tournament.groups?.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3" data-testid="group-stage">
-            {tournament.groups.map((g) => (
-              <div key={g.label} className="bg-[var(--bg)] border border-[var(--border-soft)] rounded-xl p-4">
-                <div className="text-[11px] font-mono uppercase tracking-wider text-[var(--muted-2)] mb-2">Group {g.label}</div>
-                <table className="w-full text-[12px]">
-                  <thead className="text-[var(--muted-2)]">
-                    <tr>
-                      <th className="text-left font-normal py-1">Trader</th>
-                      <th className="text-right font-normal py-1">W-D-L</th>
-                      <th className="text-right font-normal py-1">P&amp;L</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {g.rows.map((r, i) => (
-                      <tr key={i} className={`border-t border-[var(--border)] ${r.is_you ? "bg-[var(--lime-soft)]" : ""}`}>
-                        <td className="py-1.5 truncate">{r.advanced && <span className="text-[#10B981] mr-1">●</span>}@{r.username}</td>
-                        <td className="py-1.5 text-right font-mono">{r.w}-{r.d}-{r.l}</td>
-                        <td className={`py-1.5 text-right font-mono font-semibold ${r.equity >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>{r.equity >= 0 ? "+" : "−"}${Math.abs(r.equity)}</td>
+            {tournament.groups.map((g) => {
+              const sortedRows = [...g.rows].sort((a, b) => (b.equity ?? 0) - (a.equity ?? 0));
+              return (
+                <div key={g.label} className="bg-[var(--bg)] border border-[var(--border-soft)] rounded-xl p-4">
+                  <div className="text-[11px] font-mono uppercase tracking-wider text-[var(--muted-2)] mb-2">Group {g.label}</div>
+                  <table className="w-full text-[12px]">
+                    <thead className="text-[var(--muted-2)]">
+                      <tr>
+                        <th className="text-left font-normal py-1 w-6">#</th>
+                        <th className="text-left font-normal py-1">Trader</th>
+                        <th className="text-right font-normal py-1">Equity P&amp;L</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))}
+                    </thead>
+                    <tbody>
+                      {sortedRows.map((r, i) => (
+                        <tr key={i} className={`border-t border-[var(--border)] ${r.is_you ? "bg-[var(--lime-soft)]" : ""}`}>
+                          <td className={`py-1.5 font-mono text-[11px] ${i < 2 ? "text-[#10B981] font-bold" : "text-[var(--muted-2)]"}`}>{i + 1}</td>
+                          <td className="py-1.5 truncate">{i < 2 && <span className="text-[#10B981] mr-1">●</span>}@{r.username}</td>
+                          <td className={`py-1.5 text-right font-mono font-semibold ${r.equity >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>{r.equity >= 0 ? "+" : "−"}${Math.abs(r.equity).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="mt-2 text-[10px] font-mono text-[var(--muted-2)] uppercase tracking-wider">Top 2 by equity advance</div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-[13px] text-[var(--muted)] py-8 text-center">Bracket will be generated when registration closes.</div>

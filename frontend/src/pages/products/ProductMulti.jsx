@@ -39,7 +39,7 @@ export default function ProductMulti() {
               32 ENTER. <br /> ONE LIFTS <span className="text-[#B4E04C]">THE CUP.</span>
             </motion.h1>
             <p className="mt-7 text-lg md:text-xl text-white/65 max-w-2xl mx-auto leading-relaxed">
-              Group stage. Knockouts. A real championship — not a leaderboard with 5,000 names. <span className="text-[#B4E04C] font-semibold">Every stage pays.</span>
+              No head-to-head matches in the group stage. All 4 trade at once — top 2 by equity advance. Knockouts are sealed 1v1s, equity at the buzzer decides. <span className="text-[#B4E04C] font-semibold">Every stage pays.</span>
             </p>
             <div className="mt-9 flex flex-wrap gap-3 justify-center">
               <NeonBeam href="/app/tournament" dataTestid="product-cta-primary">Enter the tournament</NeonBeam>
@@ -67,12 +67,13 @@ export default function ProductMulti() {
       <section className="relative py-24 lg:py-32 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-5">
-            <SectionHeader kicker="THE MODEL" title="The leaderboard is alive." sub="Every match shuffles the standings in real-time. Win, climb. Lose, drop. Make the cut, advance to knockouts." />
+            <SectionHeader kicker="THE MODEL" title="Equity is the only judge." sub="No win-draw-loss records. No head-to-head matches in the group stage. All 4 traders in a group trade simultaneously for one fixed timeline — the top 2 by equity at the buzzer advance. Knockouts work the same way, just 1v1." />
             <ul className="mt-7 space-y-3 text-[14.5px] text-white/70">
               {[
                 "32 traders split into 8 groups of 4",
-                "Round-robin in Week 1 — top 2 advance",
-                "Weekly knockouts: R16 → QF → SF → Final",
+                "Group stage: all 4 trade simultaneously · top 2 by equity advance",
+                "Knockouts (R16/QF/SF/Final): 1v1 · highest equity wins",
+                "Every stage runs 1 trading day or 5 trading days",
                 "Every qualifying stage earns prize money",
               ].map((b, i) => (
                 <motion.li key={i} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }} className="flex items-start gap-3">
@@ -91,16 +92,16 @@ export default function ProductMulti() {
       {/* RULES */}
       <section className="relative py-24 lg:py-32 border-t border-white/5 bg-[#0B0B0F]">
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
-          <SectionHeader kicker="RULES OF ENGAGEMENT" title="5 weeks. 5 stages. Real championship." />
+          <SectionHeader kicker="RULES OF ENGAGEMENT" title="One metric. Equity at the buzzer." />
           <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4" data-testid="rules-grid">
             <BentoRuleCard icon={Users} title="Field" value="32" sub="Per tournament" />
-            <BentoRuleCard icon={Layers} title="Groups" value="8 × 4" sub="Top 2 advance each" />
+            <BentoRuleCard icon={Layers} title="Groups" value="8 × 4" sub="Top 2 by equity advance" />
             <BentoRuleCard icon={Coins} title="Account" value="$50K – $100K" sub="By tournament tier" />
-            <BentoRuleCard icon={Calendar} title="Group stage" value="Week 1" sub="Round-robin · 3 matches" />
-            <BentoRuleCard icon={Trophy} title="R16" value="Week 2" sub="Single match · win-or-out" />
-            <BentoRuleCard icon={Trophy} title="QF" value="Week 3" sub="Single match · win-or-out" />
-            <BentoRuleCard icon={Trophy} title="SF" value="Week 4" sub="Single match · win-or-out" />
-            <BentoRuleCard icon={Crown} title="Final" value="Week 5" sub="Champion + Runner-up payouts" />
+            <BentoRuleCard icon={Calendar} title="Stage length" value="1 or 5 trading days" sub="Set per tournament" />
+            <BentoRuleCard icon={Trophy} title="Group stage" value="All 4 simultaneous" sub="No head-to-head — equity ranks all 4" />
+            <BentoRuleCard icon={Trophy} title="R16 / QF / SF" value="1v1 sealed match" sub="Equity at buzzer · winner advances" />
+            <BentoRuleCard icon={Award} title="Tiebreaker" value="Max equity reached" sub="If finishing equity exactly ties" />
+            <BentoRuleCard icon={Crown} title="Final" value="1v1 sealed match" sub="Champion + Runner-up payouts" />
           </div>
         </div>
       </section>

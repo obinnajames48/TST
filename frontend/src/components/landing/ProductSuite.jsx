@@ -25,7 +25,7 @@ const products = [
     icon: Trophy,
     name: "Multi Trader",
     tagline: "32 traders. Group stage to final.",
-    detail: "Prizes at every stage · Weekly knockouts",
+    detail: "Prizes at every stage · Equity-based progression",
     accent: "lime",
     badge: null,
     href: "/products/tournament",

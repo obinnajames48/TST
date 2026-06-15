@@ -161,29 +161,37 @@ async def seed_all():
         return groups
 
     def _make_completed_groups(me_id: str, me_advances: bool):
-        """Build groups where the user has a deterministic group A record."""
+        """Build groups where 'advanced' = top 2 by equity.
+
+        Multi Trader group stage: all 4 traders trade simultaneously for the
+        same fixed timeline (1 or 5 trading days). The top 2 by equity at end
+        of timeline advance — there are no head-to-head matches in the group.
+        """
         groups = []
-        # Group A — featured group, contains the demo user
-        my_w, my_d, my_l = (2, 1, 0) if me_advances else (1, 0, 2)
+        # Group A — featured group containing the demo user
         my_equity = 8200 if me_advances else -1400
-        rows_a = [{"user_id": me_id, "w": my_w, "d": my_d, "l": my_l,
-                   "equity": my_equity, "advanced": me_advances}]
+        opp_equities = [9100, 4300, -2200] if me_advances else [11200, 6400, 3100]
+        rows_a = [{"user_id": me_id, "w": 0, "d": 0, "l": 0,
+                   "equity": my_equity, "advanced": False}]  # set later
         for i in range(3):
             opp = other_user_ids[(i + 1) % len(other_user_ids)]
-            w, d, l = random.choice([(3, 0, 0), (2, 1, 0), (1, 0, 2), (0, 1, 2)])
-            rows_a.append({"user_id": opp, "w": w, "d": d, "l": l,
-                           "equity": random.randint(-4000, 12000),
-                           "advanced": w >= 2})
+            rows_a.append({"user_id": opp, "w": 0, "d": 0, "l": 0,
+                           "equity": opp_equities[i], "advanced": False})
+        rows_a.sort(key=lambda r: r["equity"], reverse=True)
+        for idx, r in enumerate(rows_a):
+            r["advanced"] = idx < 2
         groups.append({"label": "A", "rows": rows_a})
-        # Groups B-H — random
+        # Groups B-H — random equities, top 2 advance
         for label in "BCDEFGH":
             rows = []
             for i in range(4):
                 u_id = other_user_ids[(i * 3 + ord(label)) % len(other_user_ids)]
-                w, d, l = random.choice([(3, 0, 0), (2, 1, 0), (1, 0, 2), (0, 1, 2)])
-                rows.append({"user_id": u_id, "w": w, "d": d, "l": l,
+                rows.append({"user_id": u_id, "w": 0, "d": 0, "l": 0,
                              "equity": random.randint(-5000, 14000),
-                             "advanced": w >= 2})
+                             "advanced": False})
+            rows.sort(key=lambda r: r["equity"], reverse=True)
+            for idx, r in enumerate(rows):
+                r["advanced"] = idx < 2
             groups.append({"label": label, "rows": rows})
         return groups
 
