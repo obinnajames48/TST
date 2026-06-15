@@ -23,18 +23,18 @@ export default function Dashboard() {
           <>
             <button
               onClick={() => navigate("/app/duel")}
-              className="inline-flex items-center gap-2 bg-white border border-[#ECECEA] text-[#0F0F12] font-medium text-[14px] px-4 py-2.5 rounded-full hover:bg-[#F5F5F2]"
+              className="inline-flex items-center gap-2 bg-[var(--surface)] border border-[var(--border)] text-[var(--ink)] font-medium text-[14px] px-4 py-2.5 rounded-full hover:bg-[var(--bg-soft)]"
               data-testid="dashboard-find-duel"
             >
               Find a duel <ArrowUpRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => navigate("/app/royale")}
-              className="inline-flex items-center gap-2 bg-[#0F0F12] text-white font-medium text-[14px] px-4 py-2.5 rounded-full hover:bg-[#1F2024]"
+              className="inline-flex items-center gap-2 bg-[var(--inverse)] text-[var(--inverse-fg)] font-medium text-[14px] px-4 py-2.5 rounded-full hover:bg-[var(--ink-soft)]"
               data-testid="dashboard-join-royale"
             >
               Join a royale
-              <span className="grid place-items-center w-5 h-5 bg-[#B4E04C] rounded-full text-[#0F0F12]">
+              <span className="grid place-items-center w-5 h-5 bg-[#B4E04C] rounded-full text-[var(--ink)]">
                 <ArrowUpRight className="w-3 h-3" strokeWidth={2.5} />
               </span>
             </button>
@@ -44,15 +44,15 @@ export default function Dashboard() {
 
       {/* Streak hook */}
       {user.win_streak > 0 && (
-        <div className="bg-gradient-to-r from-[#E6F4C2] to-[#EDE7FE] border border-[#B4E04C]/40 rounded-2xl p-4 flex items-center gap-4" data-testid="streak-widget">
-          <div className="w-10 h-10 rounded-xl bg-white grid place-items-center">
+        <div className="bg-gradient-to-r from-[var(--lime-soft)] to-[var(--purple-soft)] border border-[#B4E04C]/40 rounded-2xl p-4 flex items-center gap-4" data-testid="streak-widget">
+          <div className="w-10 h-10 rounded-xl bg-[var(--surface)] grid place-items-center">
             <Flame className="w-5 h-5 text-[#EF4444]" />
           </div>
           <div className="flex-1">
-            <div className="text-[14px] font-semibold text-[#0F0F12]">
+            <div className="text-[14px] font-semibold text-[var(--ink)]">
               {user.win_streak}-win streak
             </div>
-            <div className="text-[12px] text-[#1F2024]">
+            <div className="text-[12px] text-[var(--ink-soft)]">
               {user.win_streak >= user.best_streak ? "New personal best — keep it going." : `Best ever: ${user.best_streak} wins. Beat it?`}
             </div>
           </div>
@@ -69,13 +69,13 @@ export default function Dashboard() {
 
       {/* Chart + active match */}
       <div className="grid lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white border border-[#ECECEA] rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Last 30 days</div>
-              <div className="text-base font-semibold text-[#0F0F12]">Earnings trend</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Last 30 days</div>
+              <div className="text-base font-semibold text-[var(--ink)]">Earnings trend</div>
             </div>
-            <div className="font-mono text-2xl font-semibold text-[#0F0F12]">+${earnings_total.toLocaleString()}</div>
+            <div className="font-mono text-2xl font-semibold text-[var(--ink)]">+${earnings_total.toLocaleString()}</div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -86,10 +86,10 @@ export default function Dashboard() {
                     <stop offset="100%" stopColor="#B4E04C" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="day" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: "#0F0F12", border: "none", borderRadius: 12, color: "#fff", fontFamily: "Geist Mono, monospace", fontSize: 12 }} cursor={{ stroke: "#B4E04C", strokeWidth: 1, strokeDasharray: "4 4" }} />
-                <Area type="monotone" dataKey="earnings" stroke="#0F0F12" strokeWidth={2} fill="url(#g-earn)" />
+                <XAxis dataKey="day" stroke="var(--muted-2)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-2)" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={{ background: "var(--ink)", border: "none", borderRadius: 12, color: "#fff", fontFamily: "Geist Mono, monospace", fontSize: 12 }} cursor={{ stroke: "#B4E04C", strokeWidth: 1, strokeDasharray: "4 4" }} />
+                <Area type="monotone" dataKey="earnings" stroke="var(--ink)" strokeWidth={2} fill="url(#g-earn)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -98,11 +98,11 @@ export default function Dashboard() {
         {my_active_match ? (
           <ActiveMatchCard match={my_active_match} onOpen={() => navigate(`/app/match/${my_active_match.id}`)} />
         ) : (
-          <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 flex flex-col items-start justify-center" data-testid="no-active-match">
-            <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Active</div>
-            <div className="text-base font-semibold text-[#0F0F12] mb-2">No duel right now</div>
-            <p className="text-[13px] text-[#4B5563] mb-4">Join the spawn queue or browse open duels to get into your next match.</p>
-            <button onClick={() => navigate("/app/duel")} className="bg-[#0F0F12] text-white text-[13px] font-medium px-4 py-2 rounded-full">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 flex flex-col items-start justify-center" data-testid="no-active-match">
+            <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Active</div>
+            <div className="text-base font-semibold text-[var(--ink)] mb-2">No duel right now</div>
+            <p className="text-[13px] text-[var(--body)] mb-4">Join the spawn queue or browse open duels to get into your next match.</p>
+            <button onClick={() => navigate("/app/duel")} className="bg-[var(--inverse)] text-[var(--inverse-fg)] text-[13px] font-medium px-4 py-2 rounded-full">
               Find a duel
             </button>
           </div>
@@ -111,26 +111,26 @@ export default function Dashboard() {
 
       {/* Live + tournaments */}
       <div className="grid lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white border border-[#ECECEA] rounded-2xl p-6" data-testid="live-matches-widget">
+        <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6" data-testid="live-matches-widget">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Spectate</div>
-              <div className="text-base font-semibold text-[#0F0F12]">Live now</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Spectate</div>
+              <div className="text-base font-semibold text-[var(--ink)]">Live now</div>
             </div>
             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#10B981]">
               <span className="w-1.5 h-1.5 bg-[#10B981] rounded-full" />
               {live_matches.length} live
             </span>
           </div>
-          <div className="divide-y divide-[#F1F1EF]">
+          <div className="divide-y divide-[var(--border-soft)]">
             {live_matches.map((m) => (
-              <button key={m.id} onClick={() => navigate(`/app/match/${m.id}`)} className="w-full py-3 flex items-center gap-3 hover:bg-[#F5F5F2] -mx-2 px-2 rounded-lg transition-colors text-left" data-testid={`live-match-${m.id}`}>
-                {m.custom && <span className="text-[9px] font-bold uppercase tracking-wider bg-[#EDE7FE] text-[#7C3AED] px-1.5 py-0.5 rounded">Pro</span>}
+              <button key={m.id} onClick={() => navigate(`/app/match/${m.id}`)} className="w-full py-3 flex items-center gap-3 hover:bg-[var(--bg-soft)] -mx-2 px-2 rounded-lg transition-colors text-left" data-testid={`live-match-${m.id}`}>
+                {m.custom && <span className="text-[9px] font-bold uppercase tracking-wider bg-[var(--purple-soft)] text-[#7C3AED] px-1.5 py-0.5 rounded">Pro</span>}
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-medium text-[#0F0F12] truncate">
-                    @{m.trader_a?.username || "?"} <span className="text-[#9CA3AF]">vs</span> @{m.trader_b?.username || "?"}
+                  <div className="text-[13px] font-medium text-[var(--ink)] truncate">
+                    @{m.trader_a?.username || "?"} <span className="text-[var(--muted-2)]">vs</span> @{m.trader_b?.username || "?"}
                   </div>
-                  <div className="text-xs text-[#6B7280] font-mono">
+                  <div className="text-xs text-[var(--muted)] font-mono">
                     ${(m.account_size / 1000).toFixed(0)}K · {formatTime(m.time_left_seconds)} · {m.spectators} watching
                   </div>
                 </div>
@@ -138,30 +138,30 @@ export default function Dashboard() {
                   <span className={`font-mono text-sm font-semibold ${(m.pnl_a > m.pnl_b ? m.pnl_a : m.pnl_b) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {Math.max(m.pnl_a, m.pnl_b) >= 0 ? "+" : "−"}${Math.abs(Math.max(m.pnl_a, m.pnl_b)).toLocaleString()}
                   </span>
-                  <span className="text-[10px] text-[#9CA3AF] font-mono">leading</span>
+                  <span className="text-[10px] text-[var(--muted-2)] font-mono">leading</span>
                 </div>
-                <Eye className="w-4 h-4 text-[#9CA3AF] shrink-0" />
+                <Eye className="w-4 h-4 text-[var(--muted-2)] shrink-0" />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6">
-          <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Upcoming</div>
-          <div className="text-base font-semibold text-[#0F0F12] mb-4">Tournaments</div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
+          <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Upcoming</div>
+          <div className="text-base font-semibold text-[var(--ink)] mb-4">Tournaments</div>
           <div className="space-y-3">
             {upcoming_tournaments.map((t) => (
-              <div key={t.id} className="rounded-xl bg-[#FAFAF7] border border-[#F1F1EF] p-4">
+              <div key={t.id} className="rounded-xl bg-[var(--bg)] border border-[var(--border-soft)] p-4">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="text-[13px] font-semibold text-[#0F0F12]">{t.name}</div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider bg-[#0F0F12] text-white px-2 py-0.5 rounded-full">{t.stage}</span>
+                  <div className="text-[13px] font-semibold text-[var(--ink)]">{t.name}</div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider bg-[var(--inverse)] text-[var(--inverse-fg)] px-2 py-0.5 rounded-full">{t.stage}</span>
                 </div>
-                <div className="text-xs text-[#6B7280] font-mono">
+                <div className="text-xs text-[var(--muted)] font-mono">
                   {t.registered}/{t.capacity} · Starts {t.start_date}
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="font-mono text-sm font-semibold text-[#10B981]">${t.prize_pool.toLocaleString()} pool</span>
-                  <button onClick={() => navigate("/app/tournament")} className="text-xs font-medium text-[#0F0F12] hover:text-[#7C3AED] inline-flex items-center gap-1">
+                  <button onClick={() => navigate("/app/tournament")} className="text-xs font-medium text-[var(--ink)] hover:text-[#7C3AED] inline-flex items-center gap-1">
                     View <ArrowUpRight className="w-3 h-3" />
                   </button>
                 </div>
@@ -172,19 +172,19 @@ export default function Dashboard() {
       </div>
 
       {/* Recent results */}
-      <div className="bg-white border border-[#ECECEA] rounded-2xl p-6">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">History</div>
-            <div className="text-base font-semibold text-[#0F0F12]">Recent results</div>
+            <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">History</div>
+            <div className="text-base font-semibold text-[var(--ink)]">Recent results</div>
           </div>
-          <button onClick={() => navigate("/app/stats")} className="text-xs font-medium text-[#0F0F12] hover:text-[#7C3AED] inline-flex items-center gap-1">
+          <button onClick={() => navigate("/app/stats")} className="text-xs font-medium text-[var(--ink)] hover:text-[#7C3AED] inline-flex items-center gap-1">
             View all <ArrowUpRight className="w-3 h-3" />
           </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="text-[#9CA3AF]">
+            <thead className="text-[var(--muted-2)]">
               <tr>
                 <th className="text-left font-medium py-2 pr-4">Date</th>
                 <th className="text-left font-medium py-2 pr-4">Format</th>
@@ -196,15 +196,15 @@ export default function Dashboard() {
             </thead>
             <tbody className="font-mono">
               {recent_results.map((r) => (
-                <tr key={r.id} className="border-t border-[#F1F1EF]" data-testid={`result-row-${r.id}`}>
-                  <td className="py-3 pr-4 text-[#6B7280]">{r.date_label}</td>
-                  <td className="py-3 pr-4 text-[#0F0F12]">{r.format}</td>
-                  <td className="py-3 pr-4 text-[#1F2024]">{r.opponent}</td>
-                  <td className="py-3 pr-4 text-right text-[#1F2024]">${r.account_size.toLocaleString()}</td>
+                <tr key={r.id} className="border-t border-[var(--border-soft)]" data-testid={`result-row-${r.id}`}>
+                  <td className="py-3 pr-4 text-[var(--muted)]">{r.date_label}</td>
+                  <td className="py-3 pr-4 text-[var(--ink)]">{r.format}</td>
+                  <td className="py-3 pr-4 text-[var(--ink-soft)]">{r.opponent}</td>
+                  <td className="py-3 pr-4 text-right text-[var(--ink-soft)]">${r.account_size.toLocaleString()}</td>
                   <td className={`py-3 pr-4 text-right font-semibold ${r.pnl >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {r.pnl >= 0 ? "+" : "−"}${Math.abs(r.pnl)}
                   </td>
-                  <td className="py-3 text-right text-[#0F0F12] font-semibold">{r.prize > 0 ? `$${r.prize}` : "—"}</td>
+                  <td className="py-3 text-right text-[var(--ink)] font-semibold">{r.prize > 0 ? `$${r.prize}` : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -217,7 +217,7 @@ export default function Dashboard() {
 
 function ActiveMatchCard({ match, onOpen }) {
   return (
-    <div className="bg-[#0F0F12] text-white rounded-2xl p-6 relative overflow-hidden" data-testid="active-match-card">
+    <div data-dark className="bg-[#0F0F12] text-white rounded-2xl p-6 relative overflow-hidden" data-testid="active-match-card">
       <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#B4E04C] rounded-full blur-[80px] opacity-30 pointer-events-none" />
       <div className="relative">
         <div className="flex items-center justify-between mb-5">
@@ -247,7 +247,7 @@ function ActiveMatchCard({ match, onOpen }) {
             </div>
           </div>
         </div>
-        <button onClick={onOpen} className="mt-5 w-full inline-flex items-center justify-center gap-2 bg-[#B4E04C] text-[#0F0F12] font-semibold text-[13px] py-2.5 rounded-full hover:bg-white" data-testid="open-active-match">
+        <button onClick={onOpen} className="mt-5 w-full inline-flex items-center justify-center gap-2 bg-[#B4E04C] text-[#0F0F12] font-semibold text-[13px] py-2.5 rounded-full hover:bg-[var(--surface)]" data-testid="open-active-match">
           Open match <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
         </button>
       </div>
@@ -266,13 +266,13 @@ function formatTime(seconds) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-8" data-testid="dashboard-loading">
-      <div className="h-24 bg-white rounded-2xl border border-[#ECECEA] animate-pulse" />
+      <div className="h-24 bg-[var(--surface)] rounded-2xl border border-[var(--border)] animate-pulse" />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-white rounded-2xl border border-[#ECECEA] animate-pulse" />)}
+        {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-[var(--surface)] rounded-2xl border border-[var(--border)] animate-pulse" />)}
       </div>
       <div className="grid lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 h-80 bg-white rounded-2xl border border-[#ECECEA] animate-pulse" />
-        <div className="h-80 bg-white rounded-2xl border border-[#ECECEA] animate-pulse" />
+        <div className="lg:col-span-2 h-80 bg-[var(--surface)] rounded-2xl border border-[var(--border)] animate-pulse" />
+        <div className="h-80 bg-[var(--surface)] rounded-2xl border border-[var(--border)] animate-pulse" />
       </div>
     </div>
   );

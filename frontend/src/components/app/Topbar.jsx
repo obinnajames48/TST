@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search, Bell, Menu, Sparkles } from "lucide-react";
 import { currentUser } from "@/lib/mockData";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const titles = {
   "/app": "Dashboard",
@@ -26,12 +27,12 @@ export default function Topbar({ onOpenSidebar }) {
   return (
     <header
       data-testid="app-topbar"
-      className="sticky top-0 z-30 bg-[#FAFAF7]/85 backdrop-blur-xl border-b border-[#ECECEA]"
+      className="sticky top-0 z-30 bg-[var(--bg)] backdrop-blur-xl border-b border-[var(--border)]"
     >
       <div className="h-16 px-5 lg:px-8 flex items-center gap-4">
         <button
           onClick={onOpenSidebar}
-          className="lg:hidden -ml-1 p-2 rounded-lg hover:bg-[#F5F5F2]"
+          className="lg:hidden -ml-1 p-2 rounded-lg hover:bg-[var(--bg-soft)]"
           data-testid="topbar-mobile-toggle"
           aria-label="Open menu"
         >
@@ -39,30 +40,31 @@ export default function Topbar({ onOpenSidebar }) {
         </button>
 
         <div className="hidden md:block">
-          <h1 className="text-lg font-semibold tracking-tight text-[#0F0F12]">
+          <h1 className="text-lg font-semibold tracking-tight text-[var(--ink)]">
             {title}
           </h1>
         </div>
 
         <div className="flex-1 max-w-md mx-auto">
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-2)]" />
             <input
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search duels, traders, lobbies…"
               data-testid="topbar-search"
-              className="w-full bg-white border border-[#ECECEA] rounded-full pl-10 pr-4 py-2 text-[13px] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0F0F12]"
+              className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-full pl-10 pr-4 py-2 text-[13px] placeholder:text-[var(--muted-2)] focus:outline-none focus:border-[var(--ink)]"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {currentUser.plan === "FREE" && (
             <button
               onClick={() => navigate("/app/settings")}
-              className="hidden md:inline-flex items-center gap-1.5 bg-[#0F0F12] text-white text-xs font-semibold px-3.5 py-2 rounded-full hover:bg-[#1F2024]"
+              className="hidden md:inline-flex items-center gap-1.5 bg-[var(--inverse)] text-[var(--inverse-fg)] text-xs font-semibold px-3.5 py-2 rounded-full hover:bg-[var(--ink-soft)]"
               data-testid="topbar-upgrade"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#B4E04C]" />
@@ -71,16 +73,16 @@ export default function Topbar({ onOpenSidebar }) {
           )}
           <button
             onClick={() => navigate("/app/notifications")}
-            className="relative w-10 h-10 grid place-items-center bg-white border border-[#ECECEA] rounded-full hover:bg-[#F5F5F2]"
+            className="relative w-10 h-10 grid place-items-center bg-[var(--surface)] border border-[var(--border)] rounded-full hover:bg-[var(--bg-soft)]"
             data-testid="topbar-notifications"
             aria-label="Notifications"
           >
-            <Bell className="w-4 h-4 text-[#0F0F12]" />
-            <span className="absolute top-1 right-1.5 w-2 h-2 bg-[#A78BFA] rounded-full ring-2 ring-[#FAFAF7]" />
+            <Bell className="w-4 h-4 text-[var(--ink)]" />
+            <span className="absolute top-1 right-1.5 w-2 h-2 bg-[#A78BFA] rounded-full ring-2 ring-[var(--bg)]" />
           </button>
           <button
             onClick={() => navigate("/app/settings")}
-            className="w-10 h-10 rounded-full bg-[#0F0F12] grid place-items-center text-white text-sm font-bold"
+            className="w-10 h-10 rounded-full bg-[var(--inverse)] grid place-items-center text-[var(--inverse-fg)] text-sm font-bold"
             data-testid="topbar-avatar"
           >
             {currentUser.username[0]}

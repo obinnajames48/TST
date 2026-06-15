@@ -13,7 +13,7 @@ export default function Affiliate() {
   const { data: refs } = useFetch(() => get("/me/affiliate/referrals"));
   const { data: payouts } = useFetch(() => get("/me/affiliate/payouts"));
 
-  if (!aff) return <div className="h-96 bg-white rounded-2xl border border-[#ECECEA] animate-pulse" />;
+  if (!aff) return <div className="h-96 bg-[var(--surface)] rounded-2xl border border-[var(--border)] animate-pulse" />;
 
   const copyLink = () => { navigator.clipboard.writeText(aff.ref_link); toast.success("Referral link copied"); };
 
@@ -28,7 +28,7 @@ export default function Affiliate() {
         <StatCard label="Lifetime earnings" value={`$${aff.lifetime_earnings.toLocaleString()}`} icon={Wallet} tone="neutral" />
       </div>
 
-      <div className="bg-[#0F0F12] text-white rounded-3xl p-7 relative overflow-hidden">
+      <div data-dark className="bg-[#0F0F12] text-white rounded-3xl p-7 relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#A78BFA] rounded-full blur-[100px] opacity-30 pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-[#B4E04C] rounded-full blur-[100px] opacity-15 pointer-events-none" />
         <div className="relative">
@@ -44,11 +44,11 @@ export default function Affiliate() {
       </div>
 
       {aff.next_tier && (
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Progress</div>
-              <div className="text-base font-semibold text-[#0F0F12]">To {aff.next_tier.name}</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Progress</div>
+              <div className="text-base font-semibold text-[var(--ink)]">To {aff.next_tier.name}</div>
             </div>
             <Sparkles className="w-5 h-5 text-[#A78BFA]" />
           </div>
@@ -59,20 +59,20 @@ export default function Affiliate() {
         </div>
       )}
 
-      <div className="bg-white border border-[#ECECEA] rounded-2xl p-6">
-        <div className="text-base font-semibold text-[#0F0F12] mb-4">Tier ladder</div>
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
+        <div className="text-base font-semibold text-[var(--ink)] mb-4">Tier ladder</div>
         <div className="grid md:grid-cols-4 gap-3">
           {aff.tiers.map((t) => {
             const active = t.name === aff.tier.name;
             return (
-              <div key={t.name} className={`rounded-xl p-4 border ${active ? "bg-[#E6F4C2] border-[#B4E04C]" : "bg-[#FAFAF7] border-[#F1F1EF]"}`}>
+              <div key={t.name} className={`rounded-xl p-4 border ${active ? "bg-[var(--lime-soft)] border-[#B4E04C]" : "bg-[var(--bg)] border-[var(--border-soft)]"}`}>
                 <div className="flex items-center justify-between">
-                  <div className="text-[15px] font-semibold text-[#0F0F12]">{t.name}</div>
+                  <div className="text-[15px] font-semibold text-[var(--ink)]">{t.name}</div>
                   {active && <span className="text-[9px] font-bold uppercase bg-[#0F0F12] text-[#B4E04C] px-1.5 py-0.5 rounded">You</span>}
                 </div>
-                <div className="mt-2 text-[12px] font-mono text-[#1F2024]">{t.rev_share_pct}% rev share</div>
-                <div className="text-[12px] font-mono text-[#1F2024]">${t.signup_bonus} / signup</div>
-                <div className="mt-2 text-[11px] text-[#6B7280]">≥{t.min_refs} refs · ${t.min_volume.toLocaleString()} vol</div>
+                <div className="mt-2 text-[12px] font-mono text-[var(--ink-soft)]">{t.rev_share_pct}% rev share</div>
+                <div className="text-[12px] font-mono text-[var(--ink-soft)]">${t.signup_bonus} / signup</div>
+                <div className="mt-2 text-[11px] text-[var(--muted)]">≥{t.min_refs} refs · ${t.min_volume.toLocaleString()} vol</div>
               </div>
             );
           })}
@@ -80,35 +80,35 @@ export default function Affiliate() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-5">
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 overflow-x-auto">
-          <div className="text-base font-semibold text-[#0F0F12] mb-4">Your referrals</div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 overflow-x-auto">
+          <div className="text-base font-semibold text-[var(--ink)] mb-4">Your referrals</div>
           <table className="w-full text-[13px] min-w-[420px]">
-            <thead className="text-[#9CA3AF] text-[11px]"><tr><th className="text-left font-medium py-2 pr-3">User</th><th className="text-left font-medium py-2 pr-3">Joined</th><th className="text-right font-medium py-2 pr-3">Volume</th><th className="text-right font-medium py-2">Earned</th></tr></thead>
+            <thead className="text-[var(--muted-2)] text-[11px]"><tr><th className="text-left font-medium py-2 pr-3">User</th><th className="text-left font-medium py-2 pr-3">Joined</th><th className="text-right font-medium py-2 pr-3">Volume</th><th className="text-right font-medium py-2">Earned</th></tr></thead>
             <tbody className="font-mono">
               {(refs || []).map((r, i) => (
-                <tr key={i} className="border-t border-[#F1F1EF]">
-                  <td className="py-2.5 pr-3"><span className="text-[#0F0F12]">@{r.username}</span>{r.active && <span className="ml-2 text-[9px] font-bold uppercase bg-[#10B981]/10 text-[#10B981] px-1.5 py-0.5 rounded">Active</span>}</td>
-                  <td className="py-2.5 pr-3 text-[#6B7280]">{r.joined}</td>
-                  <td className="py-2.5 pr-3 text-right text-[#1F2024]">${r.volume}</td>
+                <tr key={i} className="border-t border-[var(--border-soft)]">
+                  <td className="py-2.5 pr-3"><span className="text-[var(--ink)]">@{r.username}</span>{r.active && <span className="ml-2 text-[9px] font-bold uppercase bg-[#10B981]/10 text-[#10B981] px-1.5 py-0.5 rounded">Active</span>}</td>
+                  <td className="py-2.5 pr-3 text-[var(--muted)]">{r.joined}</td>
+                  <td className="py-2.5 pr-3 text-right text-[var(--ink-soft)]">${r.volume}</td>
                   <td className="py-2.5 text-right text-[#10B981] font-semibold">+${r.earned_for_you}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 overflow-x-auto">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 overflow-x-auto">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-base font-semibold text-[#0F0F12]">Payout history</div>
-            <span className="text-[11px] text-[#6B7280] font-mono">Pending: <strong className="text-[#A78BFA]">${aff.pending_payout}</strong></span>
+            <div className="text-base font-semibold text-[var(--ink)]">Payout history</div>
+            <span className="text-[11px] text-[var(--muted)] font-mono">Pending: <strong className="text-[#A78BFA]">${aff.pending_payout}</strong></span>
           </div>
           <table className="w-full text-[13px] min-w-[420px]">
-            <thead className="text-[#9CA3AF] text-[11px]"><tr><th className="text-left font-medium py-2 pr-3">ID</th><th className="text-left font-medium py-2 pr-3">Date</th><th className="text-left font-medium py-2 pr-3">Method</th><th className="text-right font-medium py-2 pr-3">Amount</th><th className="text-right font-medium py-2">Status</th></tr></thead>
+            <thead className="text-[var(--muted-2)] text-[11px]"><tr><th className="text-left font-medium py-2 pr-3">ID</th><th className="text-left font-medium py-2 pr-3">Date</th><th className="text-left font-medium py-2 pr-3">Method</th><th className="text-right font-medium py-2 pr-3">Amount</th><th className="text-right font-medium py-2">Status</th></tr></thead>
             <tbody className="font-mono">
               {(payouts || []).map((p) => (
-                <tr key={p.id} className="border-t border-[#F1F1EF]">
-                  <td className="py-2.5 pr-3 text-[#0F0F12]">{p.id}</td>
-                  <td className="py-2.5 pr-3 text-[#6B7280]">{p.date}</td>
-                  <td className="py-2.5 pr-3 text-[#1F2024]">{p.method}</td>
+                <tr key={p.id} className="border-t border-[var(--border-soft)]">
+                  <td className="py-2.5 pr-3 text-[var(--ink)]">{p.id}</td>
+                  <td className="py-2.5 pr-3 text-[var(--muted)]">{p.date}</td>
+                  <td className="py-2.5 pr-3 text-[var(--ink-soft)]">{p.method}</td>
                   <td className="py-2.5 pr-3 text-right text-[#10B981] font-semibold">+${p.amount}</td>
                   <td className="py-2.5 text-right"><span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${p.status === "completed" ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#FEF3C7] text-[#92400E]"}`}>{p.status}</span></td>
                 </tr>
@@ -126,10 +126,10 @@ function Progress({ label, current, target, prefix = "" }) {
   return (
     <div>
       <div className="flex items-center justify-between text-[12px] mb-1.5">
-        <span className="text-[#6B7280]">{label}</span>
-        <span className="font-mono font-semibold text-[#0F0F12]">{prefix}{Math.round(current).toLocaleString()} / {prefix}{target.toLocaleString()}</span>
+        <span className="text-[var(--muted)]">{label}</span>
+        <span className="font-mono font-semibold text-[var(--ink)]">{prefix}{Math.round(current).toLocaleString()} / {prefix}{target.toLocaleString()}</span>
       </div>
-      <div className="h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-[var(--tag)] rounded-full overflow-hidden">
         <div className="h-full bg-gradient-to-r from-[#B4E04C] to-[#A78BFA] rounded-full" style={{ width: `${pct}%` }} />
       </div>
     </div>

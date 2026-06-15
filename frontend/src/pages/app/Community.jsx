@@ -26,7 +26,7 @@ export default function Community() {
     <div data-testid="community-page" className="space-y-8">
       <PageHeader eyebrow="Coming soon" title="Community Battles." description="Community vs Community trading wars are coming." />
 
-      <div className="bg-[#0F0F12] text-white rounded-3xl p-10 lg:p-16 relative overflow-hidden">
+      <div data-dark className="bg-[#0F0F12] text-white rounded-3xl p-10 lg:p-16 relative overflow-hidden">
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#A78BFA] rounded-full blur-[120px] opacity-30 pointer-events-none" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#B4E04C] rounded-full blur-[120px] opacity-20 pointer-events-none" />
         <div className="relative max-w-2xl">
@@ -52,7 +52,7 @@ export default function Community() {
                   className="flex-1 bg-transparent text-white placeholder:text-white/40 text-sm focus:outline-none py-2"
                 />
               </div>
-                <button type="submit" disabled={submitting} className="bg-[#B4E04C] text-[#0F0F12] font-semibold text-sm px-5 rounded-xl hover:bg-white disabled:opacity-50">
+                <button type="submit" disabled={submitting} className="bg-[#B4E04C] text-[#0F0F12] font-semibold text-sm px-5 rounded-xl hover:bg-[var(--surface)] disabled:opacity-50">
                   {submitting ? "..." : "Notify me"}
                 </button>
             </div>

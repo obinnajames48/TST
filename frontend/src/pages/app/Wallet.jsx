@@ -39,7 +39,7 @@ export default function Wallet() {
     } catch (e) { toast.error(e.message); }
   };
 
-  if (!wallet) return <div className="h-96 bg-white rounded-2xl border border-[#ECECEA] animate-pulse" />;
+  if (!wallet) return <div className="h-96 bg-[var(--surface)] rounded-2xl border border-[var(--border)] animate-pulse" />;
   const kycVerified = wallet.kyc_status === "verified";
 
   return (
@@ -54,9 +54,9 @@ export default function Wallet() {
 
       {!kycVerified && (
         <div className="bg-[#FEF3C7] border border-[#FCD34D] rounded-2xl p-5 flex items-start gap-4" data-testid="kyc-banner">
-          <div className="w-10 h-10 rounded-xl bg-white grid place-items-center"><ShieldCheck className="w-5 h-5 text-[#92400E]" /></div>
+          <div className="w-10 h-10 rounded-xl bg-[var(--surface)] grid place-items-center"><ShieldCheck className="w-5 h-5 text-[#92400E]" /></div>
           <div className="flex-1">
-            <div className="text-[14px] font-semibold text-[#0F0F12]">KYC verification {wallet.kyc_status === "pending" ? "pending" : "required"}</div>
+            <div className="text-[14px] font-semibold text-[var(--ink)]">KYC verification {wallet.kyc_status === "pending" ? "pending" : "required"}</div>
             <p className="text-[13px] text-[#92400E] mt-0.5">
               {wallet.kyc_status === "pending"
                 ? "Documents received. We'll notify you once verification completes."
@@ -64,56 +64,56 @@ export default function Wallet() {
             </p>
           </div>
           {wallet.kyc_status === "not_started" && (
-            <button onClick={doKyc} className="bg-[#0F0F12] text-white text-[13px] font-medium px-4 py-2 rounded-full">Start KYC</button>
+            <button onClick={doKyc} className="bg-[var(--inverse)] text-[var(--inverse-fg)] text-[13px] font-medium px-4 py-2 rounded-full">Start KYC</button>
           )}
         </div>
       )}
 
       <div className="grid lg:grid-cols-2 gap-5">
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6" data-testid="deposit-card">
-          <div className="flex items-center gap-2 mb-4"><ArrowDownToLine className="w-4 h-4 text-[#10B981]" /><div className="text-base font-semibold text-[#0F0F12]">Deposit</div></div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6" data-testid="deposit-card">
+          <div className="flex items-center gap-2 mb-4"><ArrowDownToLine className="w-4 h-4 text-[#10B981]" /><div className="text-base font-semibold text-[var(--ink)]">Deposit</div></div>
           <div className="grid grid-cols-3 gap-2 mb-4">
             <MethodBtn active={method === "card"} onClick={() => setMethod("card")} icon={CreditCard} label="Card" />
             <MethodBtn active={method === "bank"} onClick={() => setMethod("bank")} icon={Building2} label="Bank" />
             <MethodBtn active={method === "crypto"} onClick={() => setMethod("crypto")} icon={Bitcoin} label="Crypto" />
           </div>
-          <label className="block text-[12px] font-medium text-[#0F0F12] mb-2">Amount (USD)</label>
-          <input type="number" value={depositAmt} onChange={(e) => setDepositAmt(Number(e.target.value))} className="w-full bg-[#FAFAF7] border border-[#ECECEA] rounded-xl px-4 py-3 font-mono text-[15px] focus:outline-none focus:border-[#0F0F12]" />
+          <label className="block text-[12px] font-medium text-[var(--ink)] mb-2">Amount (USD)</label>
+          <input type="number" value={depositAmt} onChange={(e) => setDepositAmt(Number(e.target.value))} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-3 font-mono text-[15px] focus:outline-none focus:border-[var(--ink)]" />
           <div className="mt-2 flex gap-2">
-            {[50, 100, 500, 1000].map((p) => <button key={p} onClick={() => setDepositAmt(p)} className="text-[12px] px-3 py-1.5 rounded-full bg-[#F5F5F2] text-[#1F2024] hover:bg-[#ECECEA]">${p}</button>)}
+            {[50, 100, 500, 1000].map((p) => <button key={p} onClick={() => setDepositAmt(p)} className="text-[12px] px-3 py-1.5 rounded-full bg-[var(--bg-soft)] text-[var(--ink-soft)] hover:bg-[var(--border)]">${p}</button>)}
           </div>
-          <button onClick={doDeposit} className="mt-5 w-full bg-[#0F0F12] text-white font-medium text-[14px] py-3 rounded-full hover:bg-[#1F2024]">Add funds</button>
+          <button onClick={doDeposit} className="mt-5 w-full bg-[var(--inverse)] text-[var(--inverse-fg)] font-medium text-[14px] py-3 rounded-full hover:bg-[var(--ink-soft)]">Add funds</button>
         </div>
 
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6" data-testid="withdraw-card">
-          <div className="flex items-center gap-2 mb-4"><ArrowUpFromLine className="w-4 h-4 text-[#A78BFA]" /><div className="text-base font-semibold text-[#0F0F12]">Withdraw</div></div>
-          <div className="rounded-xl bg-[#FAFAF7] border border-[#F1F1EF] p-4 mb-4">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6" data-testid="withdraw-card">
+          <div className="flex items-center gap-2 mb-4"><ArrowUpFromLine className="w-4 h-4 text-[#A78BFA]" /><div className="text-base font-semibold text-[var(--ink)]">Withdraw</div></div>
+          <div className="rounded-xl bg-[var(--bg)] border border-[var(--border-soft)] p-4 mb-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[11px] font-mono uppercase tracking-wider text-[#9CA3AF]">Linked accounts</div>
-              <button className="text-[11px] font-medium text-[#0F0F12] inline-flex items-center gap-1"><Plus className="w-3 h-3" /> Add</button>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[var(--muted-2)]">Linked accounts</div>
+              <button className="text-[11px] font-medium text-[var(--ink)] inline-flex items-center gap-1"><Plus className="w-3 h-3" /> Add</button>
             </div>
-            <div className="flex items-center gap-2 text-[13px]"><Building2 className="w-4 h-4 text-[#6B7280]" /><span className="font-mono">Bank •••1184</span><span className="text-[10px] text-[#10B981] font-medium ml-auto">Default</span></div>
+            <div className="flex items-center gap-2 text-[13px]"><Building2 className="w-4 h-4 text-[var(--muted)]" /><span className="font-mono">Bank •••1184</span><span className="text-[10px] text-[#10B981] font-medium ml-auto">Default</span></div>
           </div>
-          <label className="block text-[12px] font-medium text-[#0F0F12] mb-2">Amount (USD)</label>
-          <input type="number" value={wdAmt} onChange={(e) => setWdAmt(Number(e.target.value))} className="w-full bg-[#FAFAF7] border border-[#ECECEA] rounded-xl px-4 py-3 font-mono text-[15px] focus:outline-none focus:border-[#0F0F12]" />
-          <div className="mt-2 text-[11px] text-[#6B7280]">Minimum $10. Available: ${wallet.balance.toLocaleString()}.</div>
-          <button onClick={doWithdraw} className="mt-5 w-full bg-[#0F0F12] text-white font-medium text-[14px] py-3 rounded-full hover:bg-[#1F2024]">Withdraw</button>
+          <label className="block text-[12px] font-medium text-[var(--ink)] mb-2">Amount (USD)</label>
+          <input type="number" value={wdAmt} onChange={(e) => setWdAmt(Number(e.target.value))} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-3 font-mono text-[15px] focus:outline-none focus:border-[var(--ink)]" />
+          <div className="mt-2 text-[11px] text-[var(--muted)]">Minimum $10. Available: ${wallet.balance.toLocaleString()}.</div>
+          <button onClick={doWithdraw} className="mt-5 w-full bg-[var(--inverse)] text-[var(--inverse-fg)] font-medium text-[14px] py-3 rounded-full hover:bg-[var(--ink-soft)]">Withdraw</button>
         </div>
       </div>
 
-      <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 overflow-x-auto" data-testid="transactions-table">
-        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">History</div>
-        <div className="text-base font-semibold text-[#0F0F12] mb-4">Transactions</div>
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 overflow-x-auto" data-testid="transactions-table">
+        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">History</div>
+        <div className="text-base font-semibold text-[var(--ink)] mb-4">Transactions</div>
         <table className="w-full text-[13px] min-w-[640px]">
-          <thead className="text-[#9CA3AF] text-[11px]"><tr><th className="text-left font-medium py-2 pr-4">Date</th><th className="text-left font-medium py-2 pr-4">Type</th><th className="text-left font-medium py-2 pr-4">Reference</th><th className="text-right font-medium py-2 pr-4">Amount</th><th className="text-right font-medium py-2">Status</th></tr></thead>
+          <thead className="text-[var(--muted-2)] text-[11px]"><tr><th className="text-left font-medium py-2 pr-4">Date</th><th className="text-left font-medium py-2 pr-4">Type</th><th className="text-left font-medium py-2 pr-4">Reference</th><th className="text-right font-medium py-2 pr-4">Amount</th><th className="text-right font-medium py-2">Status</th></tr></thead>
           <tbody className="font-mono">
             {txs.map((t) => (
-              <tr key={t.id} className="border-t border-[#F1F1EF]">
-                <td className="py-3 pr-4 text-[#6B7280]">{new Date(t.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</td>
-                <td className="py-3 pr-4 text-[#0F0F12]">{t.type}</td>
-                <td className="py-3 pr-4 text-[#1F2024]">{t.reference}</td>
+              <tr key={t.id} className="border-t border-[var(--border-soft)]">
+                <td className="py-3 pr-4 text-[var(--muted)]">{new Date(t.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</td>
+                <td className="py-3 pr-4 text-[var(--ink)]">{t.type}</td>
+                <td className="py-3 pr-4 text-[var(--ink-soft)]">{t.reference}</td>
                 <td className={`py-3 pr-4 text-right font-semibold ${t.amount >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>{t.amount >= 0 ? "+" : "−"}${Math.abs(t.amount).toLocaleString()}</td>
-                <td className="py-3 text-right"><span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${t.status === "completed" ? "bg-[#10B981]/10 text-[#10B981]" : t.status === "processing" ? "bg-[#FEF3C7] text-[#92400E]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>{t.status}</span></td>
+                <td className="py-3 text-right"><span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${t.status === "completed" ? "bg-[#10B981]/10 text-[#10B981]" : t.status === "processing" ? "bg-[#FEF3C7] text-[#92400E]" : "bg-[var(--tag)] text-[var(--muted)]"}`}>{t.status}</span></td>
               </tr>
             ))}
           </tbody>
@@ -124,5 +124,5 @@ export default function Wallet() {
 }
 
 function MethodBtn({ active, onClick, icon: Icon, label }) {
-  return <button onClick={onClick} className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all ${active ? "bg-[#0F0F12] text-white border-[#0F0F12]" : "bg-white border-[#ECECEA] text-[#1F2024] hover:bg-[#F5F5F2]"}`}><Icon className="w-4 h-4" /><span className="text-[12px] font-medium">{label}</span></button>;
+  return <button onClick={onClick} className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all ${active ? "bg-[var(--inverse)] text-[var(--inverse-fg)] border-[var(--ink)]" : "bg-[var(--surface)] border-[var(--border)] text-[var(--ink-soft)] hover:bg-[var(--bg-soft)]"}`}><Icon className="w-4 h-4" /><span className="text-[12px] font-medium">{label}</span></button>;
 }

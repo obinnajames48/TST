@@ -72,10 +72,10 @@ export default function Duel() {
       <PageHeader eyebrow="Compete" title="1v1 Duel Centre" description="Spectate live duels, enter the spawn queue, or create a custom duel." />
 
       <Tabs defaultValue="broadcast" className="w-full">
-        <TabsList className="bg-white border border-[#ECECEA] rounded-full p-1 inline-flex h-auto" data-testid="duel-tabs">
-          <TabsTrigger value="broadcast" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[#0F0F12] data-[state=active]:text-white" data-testid="tab-broadcast">Broadcast</TabsTrigger>
-          <TabsTrigger value="spawn" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[#0F0F12] data-[state=active]:text-white" data-testid="tab-spawn">Spawn centre</TabsTrigger>
-          <TabsTrigger value="create" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[#0F0F12] data-[state=active]:text-white" data-testid="tab-create">Create</TabsTrigger>
+        <TabsList className="bg-[var(--surface)] border border-[var(--border)] rounded-full p-1 inline-flex h-auto" data-testid="duel-tabs">
+          <TabsTrigger value="broadcast" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[var(--inverse)] data-[state=active]:text-[var(--inverse-fg)]" data-testid="tab-broadcast">Broadcast</TabsTrigger>
+          <TabsTrigger value="spawn" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[var(--inverse)] data-[state=active]:text-[var(--inverse-fg)]" data-testid="tab-spawn">Spawn centre</TabsTrigger>
+          <TabsTrigger value="create" className="rounded-full px-5 py-2 text-[13px] font-medium data-[state=active]:bg-[var(--inverse)] data-[state=active]:text-[var(--inverse-fg)]" data-testid="tab-create">Create</TabsTrigger>
         </TabsList>
 
         <TabsContent value="broadcast" className="mt-6 space-y-10" data-testid="broadcast-lanes">
@@ -85,23 +85,23 @@ export default function Duel() {
         </TabsContent>
 
         <TabsContent value="spawn" className="mt-6">
-          <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 mb-6">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-6">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#E6F4C2] grid place-items-center"><Clock className="w-5 h-5 text-[#0F0F12]" /></div>
+              <div className="w-10 h-10 rounded-xl bg-[var(--lime-soft)] grid place-items-center"><Clock className="w-5 h-5 text-[var(--ink)]" /></div>
               <div>
-                <div className="text-[15px] font-semibold text-[#0F0F12]">How spawning works</div>
-                <p className="text-[13px] text-[#4B5563] mt-1 max-w-xl">Pick an account size and pay the entry fee. We pair you within 5 minutes. Both traders accept, accounts activate, then a 60-second countdown begins.</p>
+                <div className="text-[15px] font-semibold text-[var(--ink)]">How spawning works</div>
+                <p className="text-[13px] text-[var(--body)] mt-1 max-w-xl">Pick an account size and pay the entry fee. We pair you within 5 minutes. Both traders accept, accounts activate, then a 60-second countdown begins.</p>
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="spawn-grid">
             {accountSizes.map((a) => (
-              <button key={a.size} onClick={() => startSpawn(a)} data-testid={`spawn-card-${a.size}`} className="text-left bg-white border border-[#ECECEA] rounded-2xl p-5 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,15,18,0.1)] transition-all">
-                <div className="font-mono text-2xl font-semibold text-[#0F0F12] tracking-tight">${a.size >= 1000000 ? "1M" : `${a.size / 1000}K`}</div>
-                <div className="mt-2 text-xs text-[#6B7280] font-mono">Entry ${a.entry} · Prize <span className="text-[#10B981] font-semibold">${a.prize}</span></div>
+              <button key={a.size} onClick={() => startSpawn(a)} data-testid={`spawn-card-${a.size}`} className="text-left bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,15,18,0.1)] transition-all">
+                <div className="font-mono text-2xl font-semibold text-[var(--ink)] tracking-tight">${a.size >= 1000000 ? "1M" : `${a.size / 1000}K`}</div>
+                <div className="mt-2 text-xs text-[var(--muted)] font-mono">Entry ${a.entry} · Prize <span className="text-[#10B981] font-semibold">${a.prize}</span></div>
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-[11px] text-[#6B7280]">Tap to join queue</span>
-                  <span className="text-[11px] font-medium text-[#0F0F12]">Join →</span>
+                  <span className="text-[11px] text-[var(--muted)]">Tap to join queue</span>
+                  <span className="text-[11px] font-medium text-[var(--ink)]">Join →</span>
                 </div>
               </button>
             ))}
@@ -130,8 +130,8 @@ function Trader({ name, pnl }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="w-7 h-7 rounded-full bg-[#0F0F12] text-white text-[10px] grid place-items-center font-bold">{name[0]}</span>
-        <span className="text-[13px] font-medium text-[#0F0F12]">@{name}</span>
+        <span className="w-7 h-7 rounded-full bg-[var(--inverse)] text-[var(--inverse-fg)] text-[10px] grid place-items-center font-bold">{name[0]}</span>
+        <span className="text-[13px] font-medium text-[var(--ink)]">@{name}</span>
       </div>
       <span className={`font-mono text-sm font-semibold ${pnl >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
         {pnl >= 0 ? "+" : "−"}${Math.abs(pnl).toLocaleString()}
@@ -142,9 +142,9 @@ function Trader({ name, pnl }) {
 
 function Pill({ label, value }) {
   return (
-    <div className="bg-[#FAFAF7] border border-[#F1F1EF] rounded-xl px-3 py-2">
-      <div className="text-[10px] font-mono text-[#9CA3AF] uppercase tracking-wider">{label}</div>
-      <div className="text-[13px] font-mono font-semibold text-[#0F0F12]">{value}</div>
+    <div className="bg-[var(--bg)] border border-[var(--border-soft)] rounded-xl px-3 py-2">
+      <div className="text-[10px] font-mono text-[var(--muted-2)] uppercase tracking-wider">{label}</div>
+      <div className="text-[13px] font-mono font-semibold text-[var(--ink)]">{value}</div>
     </div>
   );
 }
@@ -152,18 +152,18 @@ function Pill({ label, value }) {
 function SpawnDialog({ open, onClose, phase, account }) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md rounded-3xl border-[#ECECEA] bg-white" data-testid="spawn-dialog">
+      <DialogContent className="max-w-md rounded-3xl border-[var(--border)] bg-[var(--surface)]" data-testid="spawn-dialog">
         <DialogHeader>
-          <DialogTitle className="text-[#0F0F12] text-xl">Spawn Centre</DialogTitle>
-          <DialogDescription className="text-[#6B7280]">
+          <DialogTitle className="text-[var(--ink)] text-xl">Spawn Centre</DialogTitle>
+          <DialogDescription className="text-[var(--muted)]">
             {account ? `$${account.size.toLocaleString()} account · $${account.entry} entry` : ""}
           </DialogDescription>
         </DialogHeader>
         <div className="py-6 text-center">
-          {phase === "searching" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#E6F4C2] grid place-items-center mb-4 relative"><div className="absolute inset-0 rounded-full border-2 border-[#B4E04C] animate-ping opacity-40" /><Clock className="w-7 h-7 text-[#0F0F12]" /></div><div className="font-mono text-2xl font-semibold text-[#0F0F12]">04:58</div><div className="mt-2 text-[14px] text-[#4B5563]">Searching for an opponent…</div></>)}
-          {phase === "paired" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#EDE7FE] grid place-items-center mb-4"><Sparkles className="w-7 h-7 text-[#7C3AED]" /></div><div className="text-lg font-semibold text-[#0F0F12]">Opponent found</div><div className="mt-2 text-[14px] text-[#4B5563]">Waiting for acceptance…</div></>)}
-          {phase === "activating" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#0F0F12] text-[#B4E04C] grid place-items-center mb-4"><Lock className="w-7 h-7" /></div><div className="text-lg font-semibold text-[#0F0F12]">Both traders confirmed</div><div className="mt-2 text-[14px] text-[#4B5563]">Activating your trading account…</div></>)}
-          {phase === "starting" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#B4E04C] grid place-items-center mb-4"><ArrowRight className="w-7 h-7 text-[#0F0F12]" strokeWidth={2.5} /></div><div className="font-mono text-3xl font-semibold text-[#0F0F12]">0:60</div><div className="mt-2 text-[14px] text-[#4B5563]">Trading begins in…</div></>)}
+          {phase === "searching" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[var(--lime-soft)] grid place-items-center mb-4 relative"><div className="absolute inset-0 rounded-full border-2 border-[#B4E04C] animate-ping opacity-40" /><Clock className="w-7 h-7 text-[var(--ink)]" /></div><div className="font-mono text-2xl font-semibold text-[var(--ink)]">04:58</div><div className="mt-2 text-[14px] text-[var(--body)]">Searching for an opponent…</div></>)}
+          {phase === "paired" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[var(--purple-soft)] grid place-items-center mb-4"><Sparkles className="w-7 h-7 text-[#7C3AED]" /></div><div className="text-lg font-semibold text-[var(--ink)]">Opponent found</div><div className="mt-2 text-[14px] text-[var(--body)]">Waiting for acceptance…</div></>)}
+          {phase === "activating" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#0F0F12] text-[#B4E04C] grid place-items-center mb-4"><Lock className="w-7 h-7" /></div><div className="text-lg font-semibold text-[var(--ink)]">Both traders confirmed</div><div className="mt-2 text-[14px] text-[var(--body)]">Activating your trading account…</div></>)}
+          {phase === "starting" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#B4E04C] grid place-items-center mb-4"><ArrowRight className="w-7 h-7 text-[var(--ink)]" strokeWidth={2.5} /></div><div className="font-mono text-3xl font-semibold text-[var(--ink)]">0:60</div><div className="mt-2 text-[14px] text-[var(--body)]">Trading begins in…</div></>)}
         </div>
       </DialogContent>
     </Dialog>
@@ -173,14 +173,14 @@ function SpawnDialog({ open, onClose, phase, account }) {
 function UpgradeGate() {
   const navigate = useNavigate();
   return (
-    <div className="bg-[#0F0F12] text-white rounded-2xl p-10 lg:p-16 text-center relative overflow-hidden" data-testid="duel-upgrade-gate">
+    <div data-dark className="bg-[#0F0F12] text-white rounded-2xl p-10 lg:p-16 text-center relative overflow-hidden" data-testid="duel-upgrade-gate">
       <div className="absolute -top-32 -right-32 w-72 h-72 bg-[#A78BFA] rounded-full blur-[100px] opacity-30 pointer-events-none" />
       <div className="absolute -bottom-32 -left-32 w-72 h-72 bg-[#B4E04C] rounded-full blur-[100px] opacity-20 pointer-events-none" />
       <div className="relative max-w-xl mx-auto">
         <div className="w-14 h-14 mx-auto rounded-2xl bg-[#A78BFA] grid place-items-center mb-5"><Sparkles className="w-6 h-6 text-white" /></div>
         <h3 className="text-2xl md:text-3xl font-bold tracking-tight">Creating custom duels is a Pro feature.</h3>
         <p className="mt-3 text-white/70">Set your own leverage, drawdown rules, account size, timeline and instruments.</p>
-        <button onClick={() => navigate("/app/settings")} className="mt-6 inline-flex items-center gap-2 bg-[#B4E04C] text-[#0F0F12] font-semibold text-[14px] px-6 py-3 rounded-full hover:bg-white">Upgrade to Pro <ArrowRight className="w-4 h-4" strokeWidth={2.5} /></button>
+        <button onClick={() => navigate("/app/settings")} className="mt-6 inline-flex items-center gap-2 bg-[#B4E04C] text-[#0F0F12] font-semibold text-[14px] px-6 py-3 rounded-full hover:bg-[var(--surface)]">Upgrade to Pro <ArrowRight className="w-4 h-4" strokeWidth={2.5} /></button>
       </div>
     </div>
   );
@@ -216,20 +216,20 @@ function CreateDuelForm() {
 
   return (
     <div className="grid lg:grid-cols-3 gap-5" data-testid="create-duel-form">
-      <div className="lg:col-span-2 bg-white border border-[#ECECEA] rounded-2xl p-6 space-y-6">
+      <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 space-y-6">
         <Field label="Account size">
           <Select value={accountSize} onValueChange={setAccountSize}>
-            <SelectTrigger className="bg-[#FAFAF7] border-[#ECECEA] rounded-xl"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="bg-[var(--bg)] border-[var(--border)] rounded-xl"><SelectValue /></SelectTrigger>
             <SelectContent>{accountSizes.map((a) => (<SelectItem key={a.size} value={String(a.size)}>${a.size.toLocaleString()}</SelectItem>))}</SelectContent>
           </Select>
         </Field>
         <div className="grid md:grid-cols-2 gap-4">
           <Field label="Entry fee (USD)">
-            <input type="number" value={entry} onChange={(e) => setEntry(Number(e.target.value))} className="w-full bg-[#FAFAF7] border border-[#ECECEA] rounded-xl px-4 py-2.5 font-mono text-[14px] focus:outline-none focus:border-[#0F0F12]" />
+            <input type="number" value={entry} onChange={(e) => setEntry(Number(e.target.value))} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 font-mono text-[14px] focus:outline-none focus:border-[var(--ink)]" />
           </Field>
           <Field label="Trading timeline">
             <Select value={timeline} onValueChange={setTimeline}>
-              <SelectTrigger className="bg-[#FAFAF7] border-[#ECECEA] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-[var(--bg)] border-[var(--border)] rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>{["1h", "4h", "24h", "36h", "48h", "72h"].map((t) => (<SelectItem key={t} value={t}>{t}</SelectItem>))}</SelectContent>
             </Select>
           </Field>
@@ -237,7 +237,7 @@ function CreateDuelForm() {
         <Field label="Leverage">
           <div className="flex flex-wrap gap-2">
             {["1:10", "1:25", "1:50", "1:100", "1:200", "1:500"].map((l) => (
-              <button key={l} onClick={() => setLeverage(l)} className={`text-[13px] px-3 py-1.5 rounded-full border ${leverage === l ? "bg-[#0F0F12] text-white border-[#0F0F12]" : "bg-white border-[#ECECEA] text-[#1F2024] hover:bg-[#F5F5F2]"}`}>{l}</button>
+              <button key={l} onClick={() => setLeverage(l)} className={`text-[13px] px-3 py-1.5 rounded-full border ${leverage === l ? "bg-[var(--inverse)] text-[var(--inverse-fg)] border-[var(--ink)]" : "bg-[var(--surface)] border-[var(--border)] text-[var(--ink-soft)] hover:bg-[var(--bg-soft)]"}`}>{l}</button>
             ))}
           </div>
         </Field>
@@ -248,32 +248,32 @@ function CreateDuelForm() {
         <div className="grid md:grid-cols-3 gap-4">
           <Field label="Instruments">
             <Select value={instruments} onValueChange={setInstruments}>
-              <SelectTrigger className="bg-[#FAFAF7] border-[#ECECEA] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-[var(--bg)] border-[var(--border)] rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>{["All", "Forex", "Crypto", "Stocks/Indices", "Commodities"].map((i) => (<SelectItem key={i} value={i}>{i}</SelectItem>))}</SelectContent>
             </Select>
           </Field>
           <Field label="Account type">
             <Select value={accountType} onValueChange={setAccountType}>
-              <SelectTrigger className="bg-[#FAFAF7] border-[#ECECEA] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-[var(--bg)] border-[var(--border)] rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="Swap">Swap</SelectItem><SelectItem value="Swap-Free">Swap-Free</SelectItem></SelectContent>
             </Select>
           </Field>
           <Field label="Spread">
             <Select value={spreadType} onValueChange={setSpreadType}>
-              <SelectTrigger className="bg-[#FAFAF7] border-[#ECECEA] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-[var(--bg)] border-[var(--border)] rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="Raw spread">Raw spread</SelectItem><SelectItem value="Commission">Commission-based</SelectItem></SelectContent>
             </Select>
           </Field>
         </div>
-        <button onClick={handleCreate} disabled={submitting} data-testid="create-duel-submit" className="inline-flex items-center gap-2 bg-[#0F0F12] text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[#1F2024] disabled:opacity-50">
+        <button onClick={handleCreate} disabled={submitting} data-testid="create-duel-submit" className="inline-flex items-center gap-2 bg-[var(--inverse)] text-[var(--inverse-fg)] text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[var(--ink-soft)] disabled:opacity-50">
           {submitting ? "Creating..." : "Create custom duel"}
-          <span className="grid place-items-center w-5 h-5 bg-[#B4E04C] rounded-full text-[#0F0F12]"><ArrowRight className="w-3 h-3" strokeWidth={2.5} /></span>
+          <span className="grid place-items-center w-5 h-5 bg-[#B4E04C] rounded-full text-[var(--ink)]"><ArrowRight className="w-3 h-3" strokeWidth={2.5} /></span>
         </button>
       </div>
-      <div className="bg-gradient-to-br from-[#EDE7FE] to-[#FAFAF7] border border-[#A78BFA]/40 rounded-2xl p-6 h-fit sticky top-24">
+      <div className="bg-gradient-to-br from-[var(--purple-soft)] to-[var(--bg)] border border-[#A78BFA]/40 rounded-2xl p-6 h-fit sticky top-24">
         <div className="text-[10px] font-bold uppercase tracking-wider bg-[#A78BFA] text-white px-2 py-1 rounded-full inline-flex items-center gap-1 mb-4"><Sparkles className="w-3 h-3" /> Live preview</div>
-        <div className="font-mono text-2xl font-semibold text-[#0F0F12]">${Number(accountSize).toLocaleString()}</div>
-        <div className="mt-1 text-xs font-mono text-[#6B7280]">Custom Pro Duel</div>
+        <div className="font-mono text-2xl font-semibold text-[var(--ink)]">${Number(accountSize).toLocaleString()}</div>
+        <div className="mt-1 text-xs font-mono text-[var(--muted)]">Custom Pro Duel</div>
         <div className="mt-5 space-y-2 text-[13px]">
           <Row k="Entry fee" v={`$${entry}`} />
           <Row k="Timeline" v={timeline} />
@@ -290,11 +290,11 @@ function CreateDuelForm() {
 }
 
 function Field({ label, children }) {
-  return <div><label className="block text-[12px] font-medium text-[#0F0F12] mb-2">{label}</label>{children}</div>;
+  return <div><label className="block text-[12px] font-medium text-[var(--ink)] mb-2">{label}</label>{children}</div>;
 }
 
 function Row({ k, v }) {
-  return <div className="flex items-center justify-between border-b border-[#A78BFA]/15 pb-2"><span className="text-[#6B7280]">{k}</span><span className="font-mono font-semibold text-[#0F0F12]">{v}</span></div>;
+  return <div className="flex items-center justify-between border-b border-[#A78BFA]/15 pb-2"><span className="text-[var(--muted)]">{k}</span><span className="font-mono font-semibold text-[var(--ink)]">{v}</span></div>;
 }
 
 function DuelLane({ lane, onJoin }) {
@@ -305,22 +305,22 @@ function DuelLane({ lane, onJoin }) {
       <div className="flex items-end justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isPro ? "bg-[#A78BFA] text-white" : "bg-[#0F0F12] text-white"}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isPro ? "bg-[#A78BFA] text-[var(--inverse-fg)]" : "bg-[var(--inverse)] text-[var(--inverse-fg)]"}`}>
               {isPro ? <><Sparkles className="w-2.5 h-2.5" /> Pro</> : "Standard"}
             </span>
-            <span className={`inline-flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full ${isLive ? "bg-[#EF4444]/10 text-[#EF4444]" : "bg-[#E6F4C2] text-[#0F0F12]"}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full ${isLive ? "bg-[#EF4444]/10 text-[#EF4444]" : "bg-[var(--lime-soft)] text-[var(--ink)]"}`}>
               {isLive ? <><Radio className="w-2.5 h-2.5" /> LIVE</> : <><Hourglass className="w-2.5 h-2.5" /> OPEN</>}
             </span>
-            <span className="text-[11px] font-mono text-[#9CA3AF]">{lane.items.length}</span>
+            <span className="text-[11px] font-mono text-[var(--muted-2)]">{lane.items.length}</span>
           </div>
-          <h3 className="text-lg font-bold tracking-tight text-[#0F0F12]">{lane.title}</h3>
-          <div className="text-[12.5px] text-[#6B7280]">{lane.subtitle}</div>
+          <h3 className="text-lg font-bold tracking-tight text-[var(--ink)]">{lane.title}</h3>
+          <div className="text-[12.5px] text-[var(--muted)]">{lane.subtitle}</div>
         </div>
       </div>
 
       {lane.items.length === 0 ? (
-        <div className="bg-white border border-dashed border-[#ECECEA] rounded-2xl p-8 text-center">
-          <div className="text-[13px] text-[#6B7280]">
+        <div className="bg-[var(--surface)] border border-dashed border-[var(--border)] rounded-2xl p-8 text-center">
+          <div className="text-[13px] text-[var(--muted)]">
             No {lane.state === "open" ? "open" : "live"} {isPro ? "Pro" : "Standard"} duels right now.
             {lane.state === "open" && (isPro ? " Be the first to create one in the Create tab." : " Hit Spawn centre to start one.")}
           </div>
@@ -340,31 +340,31 @@ function DuelCard({ m, isLive, isPro, onJoin }) {
   return (
     <div
       data-testid={`broadcast-card-${m.id}`}
-      className={`relative rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${isPro ? "bg-gradient-to-br from-[#EDE7FE] to-[#FAFAF7] border-[#A78BFA]/40" : "bg-white border-[#ECECEA]"}`}
+      className={`relative rounded-2xl p-5 border transition-all hover:-translate-y-0.5 ${isPro ? "bg-gradient-to-br from-[var(--purple-soft)] to-[var(--bg)] border-[#A78BFA]/40" : "bg-[var(--surface)] border-[var(--border)]"}`}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-xs text-[#6B7280]">{m.id}</span>
+        <span className="font-mono text-xs text-[var(--muted)]">{m.id}</span>
         {isLive ? (
           <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#EF4444]"><span className="w-1.5 h-1.5 bg-[#EF4444] rounded-full pulse-soft" />LIVE</span>
         ) : (
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#0F0F12]"><Hourglass className="w-2.5 h-2.5" /> WAITING</span>
+          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--ink)]"><Hourglass className="w-2.5 h-2.5" /> WAITING</span>
         )}
       </div>
       {isLive ? (
         <div className="space-y-3 mb-4">
           <Trader name={m.trader_a?.username || "?"} pnl={m.pnl_a} />
-          <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">vs</div>
+          <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[var(--muted-2)]">vs</div>
           <Trader name={m.trader_b?.username || "?"} pnl={m.pnl_b} />
         </div>
       ) : (
         <div className="mb-4">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-full bg-[#0F0F12] text-white text-[10px] grid place-items-center font-bold">{(m.trader_a?.username || "?")[0]}</span>
-            <span className="text-[13px] font-medium text-[#0F0F12]">@{m.trader_a?.username || "Unknown"}</span>
+            <span className="w-7 h-7 rounded-full bg-[var(--inverse)] text-[var(--inverse-fg)] text-[10px] grid place-items-center font-bold">{(m.trader_a?.username || "?")[0]}</span>
+            <span className="text-[13px] font-medium text-[var(--ink)]">@{m.trader_a?.username || "Unknown"}</span>
           </div>
-          <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF] my-2">vs</div>
-          <div className="flex items-center gap-2 text-[#9CA3AF]">
-            <span className="w-7 h-7 rounded-full bg-[#F3F4F6] text-[#9CA3AF] text-[10px] grid place-items-center font-bold">?</span>
+          <div className="text-center text-[10px] font-mono uppercase tracking-widest text-[var(--muted-2)] my-2">vs</div>
+          <div className="flex items-center gap-2 text-[var(--muted-2)]">
+            <span className="w-7 h-7 rounded-full bg-[var(--tag)] text-[var(--muted-2)] text-[10px] grid place-items-center font-bold">?</span>
             <span className="text-[13px] italic">Waiting for opponent…</span>
           </div>
         </div>
@@ -376,7 +376,7 @@ function DuelCard({ m, isLive, isPro, onJoin }) {
       <button
         onClick={() => onJoin(m)}
         data-testid={`${isLive ? "spectate" : "view-open"}-${m.id}`}
-        className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[13px] font-medium py-2.5 rounded-full hover:bg-[#1F2024]"
+        className="w-full inline-flex items-center justify-center gap-2 bg-[var(--inverse)] text-[var(--inverse-fg)] text-[13px] font-medium py-2.5 rounded-full hover:bg-[var(--ink-soft)]"
       >
         {isLive ? (<><Eye className="w-3.5 h-3.5" /> Spectate · {m.spectators}</>) : (<><ArrowRight className="w-3.5 h-3.5" /> View details</>)}
       </button>

@@ -24,8 +24,8 @@ export default function Match() {
 
   if (!duel) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#FAFAF7] grid place-items-center">
-        <div className="text-[#6B7280]">Loading match…</div>
+      <div className="fixed inset-0 z-50 bg-[var(--bg)] grid place-items-center">
+        <div className="text-[var(--muted)]">Loading match…</div>
       </div>
     );
   }
@@ -43,7 +43,7 @@ export default function Match() {
   const myConfirmed = youAreA ? !!duel.login_confirmed_a : !!duel.login_confirmed_b;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#FAFAF7] overflow-y-auto" data-testid="match-page">
+    <div className="fixed inset-0 z-50 bg-[var(--bg)] overflow-y-auto" data-testid="match-page">
       <Mt5LoginDialog
         open={showMt5}
         duelId={duel.id}
@@ -58,18 +58,18 @@ export default function Match() {
       <div className="max-w-7xl mx-auto px-5 lg:px-8 py-5">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <button onClick={() => navigate(-1)} className="w-10 h-10 grid place-items-center rounded-full bg-white border border-[#ECECEA] hover:bg-[#F5F5F2]" data-testid="match-close"><X className="w-4 h-4" /></button>
+            <button onClick={() => navigate(-1)} className="w-10 h-10 grid place-items-center rounded-full bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--bg-soft)]" data-testid="match-close"><X className="w-4 h-4" /></button>
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Duel {duel.id}</div>
-              <div className="text-[15px] font-semibold text-[#0F0F12]">${duel.account_size.toLocaleString()} account</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Duel {duel.id}</div>
+              <div className="text-[15px] font-semibold text-[var(--ink)]">${duel.account_size.toLocaleString()} account</div>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Time left</div>
-              <div className="font-mono text-2xl md:text-3xl font-semibold tracking-tight text-[#0F0F12]" data-testid="match-timer">{formatTime(duel.time_left_seconds)}</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Time left</div>
+              <div className="font-mono text-2xl md:text-3xl font-semibold tracking-tight text-[var(--ink)]" data-testid="match-timer">{formatTime(duel.time_left_seconds)}</div>
             </div>
-            <span className="inline-flex items-center gap-1.5 bg-[#0F0F12] text-white px-3 py-1.5 rounded-full text-[11px] font-medium"><Eye className="w-3 h-3" /> {duel.spectators}</span>
+            <span className="inline-flex items-center gap-1.5 bg-[var(--inverse)] text-[var(--inverse-fg)] px-3 py-1.5 rounded-full text-[11px] font-medium"><Eye className="w-3 h-3" /> {duel.spectators}</span>
           </div>
         </div>
 
@@ -78,9 +78,9 @@ export default function Match() {
           <TraderColumn name={opName || "—"} pnl={opPnl} balance={duel.account_size + opPnl} color="#A78BFA" series={duel.equity_series || []} sideKey="b" />
         </div>
 
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 mb-5" data-testid="match-chart">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-5" data-testid="match-chart">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-base font-semibold text-[#0F0F12]">Equity over time</div>
+            <div className="text-base font-semibold text-[var(--ink)]">Equity over time</div>
             <div className="flex items-center gap-4 text-[12px] font-mono">
               <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 bg-[#10B981] rounded-full" /> @{duel.trader_a?.username}</span>
               <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 bg-[#A78BFA] rounded-full" /> @{duel.trader_b?.username}</span>
@@ -94,7 +94,7 @@ export default function Match() {
                   <linearGradient id="g-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A78BFA" stopOpacity={0.3} /><stop offset="100%" stopColor="#A78BFA" stopOpacity={0} /></linearGradient>
                 </defs>
                 <XAxis dataKey="i" hide />
-                <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-2)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ background: "#0F0F12", border: "none", borderRadius: 12, color: "#fff", fontSize: 12 }} />
                 <Area type="monotone" dataKey="a" stroke="#10B981" strokeWidth={2} fill="url(#g-a)" isAnimationActive={false} />
                 <Area type="monotone" dataKey="b" stroke="#A78BFA" strokeWidth={2} fill="url(#g-b)" isAnimationActive={false} />
@@ -103,16 +103,16 @@ export default function Match() {
           </div>
         </div>
 
-        <div className="bg-white border border-[#ECECEA] rounded-2xl p-6 overflow-x-auto">
-          <div className="flex items-center gap-2 mb-4"><Activity className="w-4 h-4 text-[#0F0F12]" /><div className="text-base font-semibold text-[#0F0F12]">Recent trades</div></div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 overflow-x-auto">
+          <div className="flex items-center gap-2 mb-4"><Activity className="w-4 h-4 text-[var(--ink)]" /><div className="text-base font-semibold text-[var(--ink)]">Recent trades</div></div>
           <table className="w-full text-[13px] min-w-[640px]">
-            <thead className="text-[#9CA3AF] text-[11px]"><tr><th className="text-left font-medium py-2 pr-4">Side</th><th className="text-left font-medium py-2 pr-4">Instrument</th><th className="text-left font-medium py-2 pr-4">Size</th><th className="text-right font-medium py-2 pr-4">Entry</th><th className="text-right font-medium py-2 pr-4">Exit</th><th className="text-right font-medium py-2">P&amp;L</th></tr></thead>
+            <thead className="text-[var(--muted-2)] text-[11px]"><tr><th className="text-left font-medium py-2 pr-4">Side</th><th className="text-left font-medium py-2 pr-4">Instrument</th><th className="text-left font-medium py-2 pr-4">Size</th><th className="text-right font-medium py-2 pr-4">Entry</th><th className="text-right font-medium py-2 pr-4">Exit</th><th className="text-right font-medium py-2">P&amp;L</th></tr></thead>
             <tbody className="font-mono">
               {sampleTrades.map((t, i) => (
-                <tr key={i} className="border-t border-[#F1F1EF]">
+                <tr key={i} className="border-t border-[var(--border-soft)]">
                   <td className="py-3 pr-4"><span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${t.side === "buy" ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#EF4444]/10 text-[#EF4444]"}`}>{t.side}</span></td>
-                  <td className="py-3 pr-4 text-[#0F0F12] font-semibold">{t.instrument}</td>
-                  <td className="py-3 pr-4 text-[#1F2024]">{t.size}</td>
+                  <td className="py-3 pr-4 text-[var(--ink)] font-semibold">{t.instrument}</td>
+                  <td className="py-3 pr-4 text-[var(--ink-soft)]">{t.size}</td>
                   <td className="py-3 pr-4 text-right">{t.entry}</td>
                   <td className="py-3 pr-4 text-right">{t.exit}</td>
                   <td className={`py-3 text-right font-semibold ${t.pnl >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>{t.pnl >= 0 ? "+" : "−"}${Math.abs(t.pnl)}</td>
@@ -134,17 +134,17 @@ function formatTime(seconds) {
 
 function TraderColumn({ name, pnl, you, balance, color, series, sideKey }) {
   return (
-    <div className={`rounded-2xl p-5 border ${you ? "bg-[#0F0F12] text-white border-[#0F0F12]" : "bg-white border-[#ECECEA]"}`} data-testid={`trader-col-${name.toLowerCase()}`}>
+    <div className={`rounded-2xl p-5 border ${you ? "bg-[#0F0F12] text-white border-[#0F0F12]" : "bg-[var(--surface)] border-[var(--border)]"}`} data-testid={`trader-col-${name.toLowerCase()}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full grid place-items-center font-bold ${you ? "bg-[#B4E04C] text-[#0F0F12]" : "bg-[#0F0F12] text-white"}`}>{name[0]}</div>
+          <div className={`w-10 h-10 rounded-full grid place-items-center font-bold ${you ? "bg-[#B4E04C] text-[#0F0F12]" : "bg-[var(--inverse)] text-[var(--inverse-fg)]"}`}>{name[0]}</div>
           <div>
             <div className="text-[14px] font-semibold">@{name}</div>
-            <div className={`text-[10px] font-mono uppercase tracking-wider ${you ? "text-white/40" : "text-[#9CA3AF]"}`}>{you ? "You" : "Opponent"}</div>
+            <div className={`text-[10px] font-mono uppercase tracking-wider ${you ? "text-white/40" : "text-[var(--muted-2)]"}`}>{you ? "You" : "Opponent"}</div>
           </div>
         </div>
         <div className="text-right">
-          <div className={`text-[10px] font-mono uppercase tracking-wider ${you ? "text-white/40" : "text-[#9CA3AF]"}`}>Equity</div>
+          <div className={`text-[10px] font-mono uppercase tracking-wider ${you ? "text-white/40" : "text-[var(--muted-2)]"}`}>Equity</div>
           <div className="font-mono text-base font-semibold tracking-tight">${balance.toLocaleString()}</div>
         </div>
       </div>
@@ -152,7 +152,7 @@ function TraderColumn({ name, pnl, you, balance, color, series, sideKey }) {
         {pnl >= 0 ? <ArrowUpRight className="w-7 h-7" strokeWidth={2.5} /> : <ArrowDownRight className="w-7 h-7" strokeWidth={2.5} />}
         {pnl >= 0 ? "+" : "−"}${Math.abs(pnl).toLocaleString()}
       </div>
-      <div className={`mt-1 text-[12px] font-mono ${you ? "text-white/40" : "text-[#6B7280]"}`}>P&amp;L · since open</div>
+      <div className={`mt-1 text-[12px] font-mono ${you ? "text-white/40" : "text-[var(--muted)]"}`}>P&amp;L · since open</div>
       <div className="mt-4 h-28">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={series}>
@@ -210,7 +210,7 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
     <Dialog open={open} onOpenChange={(v) => !v && onClose?.()}>
       <DialogContent
         data-testid="mt5-dialog"
-        className="max-w-xl rounded-3xl border-[#ECECEA] bg-white p-0 overflow-hidden"
+        className="max-w-xl rounded-3xl border-[var(--border)] bg-[var(--surface)] p-0 overflow-hidden"
       >
         <div className="bg-[#0F0F12] text-white px-6 py-5 relative">
           <button
@@ -235,17 +235,17 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
         <div className="px-6 py-5 space-y-5">
           <div>
             <div className="flex items-end justify-between mb-2">
-              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">Login window</div>
-              <div className={`font-mono text-3xl font-bold tracking-tight ${expired ? "text-[#EF4444]" : remaining < 60 ? "text-[#EF4444]" : "text-[#0F0F12]"}`} data-testid="mt5-countdown">
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">Login window</div>
+              <div className={`font-mono text-3xl font-bold tracking-tight ${expired ? "text-[#EF4444]" : remaining < 60 ? "text-[#EF4444]" : "text-[var(--ink)]"}`} data-testid="mt5-countdown">
                 {minsStr}:{secsStr}
               </div>
             </div>
-            <div className="h-1.5 bg-[#F1F1EF] rounded-full overflow-hidden">
+            <div className="h-1.5 bg-[var(--border-soft)] rounded-full overflow-hidden">
               <div className={`h-full transition-all ${expired ? "bg-[#EF4444]" : "bg-[#B4E04C]"}`} style={{ width: `${progress}%` }} />
             </div>
           </div>
 
-          <div className="bg-[#FAFAF7] border border-[#ECECEA] rounded-2xl divide-y divide-[#ECECEA]">
+          <div className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl divide-y divide-[var(--border)]">
             <CredRow icon={Lock} label="Login" value={creds?.login || "—"} onCopy={() => copy(creds?.login, "Login")} testId="mt5-login" />
             <CredRow icon={ShieldCheck} label="Password" value={creds?.password || "—"} mono onCopy={() => copy(creds?.password, "Password")} testId="mt5-password" />
             <CredRow icon={Server} label="Server" value={creds?.server || "—"} onCopy={() => copy(creds?.server, "Server")} testId="mt5-server" />
@@ -253,12 +253,12 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
           </div>
 
           <div className="flex items-center gap-3 text-[12px]">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${myConfirmed ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#F3F4F6] text-[#6B7280]"}`} data-testid="mt5-you-status">
-              <span className={`w-1.5 h-1.5 rounded-full ${myConfirmed ? "bg-[#10B981]" : "bg-[#9CA3AF]"}`} />
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${myConfirmed ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[var(--tag)] text-[var(--muted)]"}`} data-testid="mt5-you-status">
+              <span className={`w-1.5 h-1.5 rounded-full ${myConfirmed ? "bg-[#10B981]" : "bg-[var(--muted-2)]"}`} />
               You {myConfirmed ? "confirmed" : "pending"}
             </span>
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${opConfirmed ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#F3F4F6] text-[#6B7280]"}`} data-testid="mt5-op-status">
-              <span className={`w-1.5 h-1.5 rounded-full ${opConfirmed ? "bg-[#10B981]" : "bg-[#9CA3AF]"}`} />
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${opConfirmed ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[var(--tag)] text-[var(--muted)]"}`} data-testid="mt5-op-status">
+              <span className={`w-1.5 h-1.5 rounded-full ${opConfirmed ? "bg-[#10B981]" : "bg-[var(--muted-2)]"}`} />
               @{opName || "Opponent"} {opConfirmed ? "confirmed" : "pending"}
             </span>
           </div>
@@ -267,7 +267,7 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
             onClick={onConfirm}
             disabled={confirming || myConfirmed || expired}
             data-testid="mt5-confirm-btn"
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[14px] font-semibold py-3.5 rounded-full hover:bg-[#1F2024] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-2 bg-[var(--inverse)] text-[var(--inverse-fg)] text-[14px] font-semibold py-3.5 rounded-full hover:bg-[var(--ink-soft)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {myConfirmed ? "Login confirmed · waiting for opponent" : confirming ? "Confirming…" : expired ? "Window expired" : "I've logged in — confirm"}
             {!myConfirmed && !expired && <span className="w-1.5 h-1.5 bg-[#B4E04C] rounded-full" />}
@@ -277,7 +277,7 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
             <button
               onClick={() => onExitMatch?.()}
               data-testid="mt5-exit-match"
-              className="text-[12px] font-medium text-[#6B7280] hover:text-[#EF4444] transition-colors"
+              className="text-[12px] font-medium text-[var(--muted)] hover:text-[#EF4444] transition-colors"
             >
               Exit match
             </button>
@@ -285,7 +285,7 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
               <button
                 onClick={() => onClose?.()}
                 data-testid="mt5-watch-chart"
-                className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0F0F12] hover:gap-2 transition-all"
+                className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[var(--ink)] hover:gap-2 transition-all"
               >
                 Watch the chart while you wait →
               </button>
@@ -303,15 +303,15 @@ function Mt5LoginDialog({ open, duelId, startedAt, myConfirmed, opConfirmed, acc
 function CredRow({ icon: Icon, label, value, mono, onCopy, testId }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3" data-testid={testId}>
-      <div className="w-8 h-8 rounded-lg bg-white border border-[#ECECEA] grid place-items-center text-[#0F0F12]">
+      <div className="w-8 h-8 rounded-lg bg-[var(--surface)] border border-[var(--border)] grid place-items-center text-[var(--ink)]">
         <Icon className="w-3.5 h-3.5" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">{label}</div>
-        <div className={`text-[14px] text-[#0F0F12] font-semibold ${mono ? "font-mono tracking-wide" : ""} truncate`}>{value}</div>
+        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">{label}</div>
+        <div className={`text-[14px] text-[var(--ink)] font-semibold ${mono ? "font-mono tracking-wide" : ""} truncate`}>{value}</div>
       </div>
       {onCopy && (
-        <button onClick={onCopy} className="w-8 h-8 grid place-items-center rounded-lg hover:bg-[#F5F5F2] text-[#6B7280]">
+        <button onClick={onCopy} className="w-8 h-8 grid place-items-center rounded-lg hover:bg-[var(--bg-soft)] text-[var(--muted)]">
           <Copy className="w-3.5 h-3.5" />
         </button>
       )}

@@ -19,7 +19,7 @@ export default function TagTeam() {
         description="Build a squad. Distribute capital. Trade as one."
         actions={
           <CreateTeamDialog onCreated={refetch}>
-            <button data-testid="create-team-btn" className="inline-flex items-center gap-2 bg-[#0F0F12] text-white font-medium text-[14px] px-4 py-2.5 rounded-full hover:bg-[#1F2024]">
+            <button data-testid="create-team-btn" className="inline-flex items-center gap-2 bg-[var(--inverse)] text-[var(--inverse-fg)] font-medium text-[14px] px-4 py-2.5 rounded-full hover:bg-[var(--ink-soft)]">
               <Plus className="w-4 h-4" /> Create team
             </button>
           </CreateTeamDialog>
@@ -27,44 +27,44 @@ export default function TagTeam() {
       />
 
       <div>
-        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF] mb-3">My teams</div>
+        <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)] mb-3">My teams</div>
         {teams.length === 0 ? (
-          <div className="bg-white border border-[#ECECEA] rounded-2xl p-10 text-center">
-            <Users className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3" />
-            <div className="text-[14px] font-semibold text-[#0F0F12]">No teams yet</div>
-            <div className="text-[13px] text-[#6B7280] mt-1">Create one and invite teammates by username.</div>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-10 text-center">
+            <Users className="w-8 h-8 text-[var(--muted-2)] mx-auto mb-3" />
+            <div className="text-[14px] font-semibold text-[var(--ink)]">No teams yet</div>
+            <div className="text-[13px] text-[var(--muted)] mt-1">Create one and invite teammates by username.</div>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
             {teams.map((t) => (
-              <div key={t.id} data-testid={`team-${t.id}`} className="bg-white border border-[#ECECEA] rounded-2xl p-5">
+              <div key={t.id} data-testid={`team-${t.id}`} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#EDE7FE] grid place-items-center"><Users className="w-5 h-5 text-[#7C3AED]" /></div>
+                    <div className="w-11 h-11 rounded-xl bg-[var(--purple-soft)] grid place-items-center"><Users className="w-5 h-5 text-[#7C3AED]" /></div>
                     <div>
-                      <div className="text-[15px] font-semibold text-[#0F0F12]">Team {t.name}</div>
-                      <div className="text-[11px] font-mono text-[#6B7280]">{t.format} · {t.role}</div>
+                      <div className="text-[15px] font-semibold text-[var(--ink)]">Team {t.name}</div>
+                      <div className="text-[11px] font-mono text-[var(--muted)]">{t.format} · {t.role}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider bg-[#F3F4F6] text-[#6B7280] px-2 py-0.5 rounded-full">{t.record}</span>
+                  <span className="text-[10px] font-mono uppercase tracking-wider bg-[var(--tag)] text-[var(--muted)] px-2 py-0.5 rounded-full">{t.record}</span>
                 </div>
-                <div className="text-[11px] font-mono uppercase tracking-wider text-[#9CA3AF] mb-2">Roster</div>
+                <div className="text-[11px] font-mono uppercase tracking-wider text-[var(--muted-2)] mb-2">Roster</div>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {t.members.map((m, i) => {
                     const isYou = m === me?.username;
                     return (
-                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[12px] ${isYou ? "bg-[#E6F4C2] border-[#B4E04C]" : "bg-[#FAFAF7] border-[#F1F1EF]"}`}>
-                        <span className="w-5 h-5 rounded-full bg-[#0F0F12] text-white text-[9px] grid place-items-center font-bold">{m[0]}</span>
-                        <span className="font-medium text-[#0F0F12]">@{m}</span>
+                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[12px] ${isYou ? "bg-[var(--lime-soft)] border-[#B4E04C]" : "bg-[var(--bg)] border-[var(--border-soft)]"}`}>
+                        <span className="w-5 h-5 rounded-full bg-[var(--inverse)] text-[var(--inverse-fg)] text-[9px] grid place-items-center font-bold">{m[0]}</span>
+                        <span className="font-medium text-[var(--ink)]">@{m}</span>
                       </div>
                     );
                   })}
                 </div>
                 <div className="flex gap-2">
-                  <button className="flex-1 inline-flex items-center justify-center gap-2 bg-[#0F0F12] text-white text-[13px] font-medium py-2.5 rounded-full hover:bg-[#1F2024]">
+                  <button className="flex-1 inline-flex items-center justify-center gap-2 bg-[var(--inverse)] text-[var(--inverse-fg)] text-[13px] font-medium py-2.5 rounded-full hover:bg-[var(--ink-soft)]">
                     Challenge team <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
-                  <button className="px-4 bg-white border border-[#ECECEA] text-[#0F0F12] text-[13px] font-medium rounded-full hover:bg-[#F5F5F2]">Manage</button>
+                  <button className="px-4 bg-[var(--surface)] border border-[var(--border)] text-[var(--ink)] text-[13px] font-medium rounded-full hover:bg-[var(--bg-soft)]">Manage</button>
                 </div>
               </div>
             ))}
@@ -120,11 +120,11 @@ function CreateTeamDialog({ children, onCreated }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-lg rounded-3xl bg-white border-[#ECECEA] max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle className="text-[#0F0F12]">Create a team</DialogTitle></DialogHeader>
+      <DialogContent className="max-w-lg rounded-3xl bg-[var(--surface)] border-[var(--border)] max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle className="text-[var(--ink)]">Create a team</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <Field label="Team name">
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Alpha" className="w-full bg-[#FAFAF7] border border-[#ECECEA] rounded-xl px-4 py-2.5 text-[14px] focus:outline-none focus:border-[#0F0F12]" />
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Alpha" className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[14px] focus:outline-none focus:border-[var(--ink)]" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Format">
@@ -135,20 +135,20 @@ function CreateTeamDialog({ children, onCreated }) {
                     const n = f === "3v3" ? 3 : 5;
                     const each = Math.floor(total / n);
                     setSplits(Array.from({ length: n }, (_, i) => i === 0 ? total - each * (n - 1) : each));
-                  }} className={`flex-1 text-[13px] px-3 py-2 rounded-xl border ${format === f ? "bg-[#0F0F12] text-white border-[#0F0F12]" : "bg-white border-[#ECECEA]"}`}>{f}</button>
+                  }} className={`flex-1 text-[13px] px-3 py-2 rounded-xl border ${format === f ? "bg-[var(--inverse)] text-[var(--inverse-fg)] border-[var(--ink)]" : "bg-[var(--surface)] border-[var(--border)]"}`}>{f}</button>
                 ))}
               </div>
             </Field>
             <Field label="Total combined account">
-              <input type="number" value={total} onChange={(e) => setTotal(Number(e.target.value))} className="w-full bg-[#FAFAF7] border border-[#ECECEA] rounded-xl px-4 py-2.5 text-[14px] font-mono focus:outline-none focus:border-[#0F0F12]" />
+              <input type="number" value={total} onChange={(e) => setTotal(Number(e.target.value))} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[14px] font-mono focus:outline-none focus:border-[var(--ink)]" />
             </Field>
           </div>
           <Field label={`Capital split (sum must equal $${total.toLocaleString()})`}>
             <div className="space-y-2">
               {Array.from({ length: slots }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-[11px] font-mono text-[#6B7280] w-16">Trader {i + 1}</span>
-                  <input type="number" value={splits[i] || 0} onChange={(e) => setSlot(i, e.target.value)} className="flex-1 bg-[#FAFAF7] border border-[#ECECEA] rounded-lg px-3 py-2 text-[13px] font-mono focus:outline-none focus:border-[#0F0F12]" />
+                  <span className="text-[11px] font-mono text-[var(--muted)] w-16">Trader {i + 1}</span>
+                  <input type="number" value={splits[i] || 0} onChange={(e) => setSlot(i, e.target.value)} className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-[13px] font-mono focus:outline-none focus:border-[var(--ink)]" />
                 </div>
               ))}
               <div className={`text-[11px] font-mono ${sumValid ? "text-[#10B981]" : "text-[#EF4444]"}`}>
@@ -159,11 +159,11 @@ function CreateTeamDialog({ children, onCreated }) {
           <Field label="Invite teammates by username (optional)">
             <div className="space-y-2">
               {usernames.map((u, i) => (
-                <input key={i} value={u} onChange={(e) => { const n = [...usernames]; n[i] = e.target.value; setUsernames(n); }} placeholder={`@username ${i + 1}`} className="w-full bg-[#FAFAF7] border border-[#ECECEA] rounded-xl px-4 py-2 text-[13px] focus:outline-none focus:border-[#0F0F12]" />
+                <input key={i} value={u} onChange={(e) => { const n = [...usernames]; n[i] = e.target.value; setUsernames(n); }} placeholder={`@username ${i + 1}`} className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2 text-[13px] focus:outline-none focus:border-[var(--ink)]" />
               ))}
             </div>
           </Field>
-          <button onClick={submit} disabled={submitting} className="w-full bg-[#0F0F12] text-white font-medium text-[14px] py-3 rounded-full hover:bg-[#1F2024] disabled:opacity-50">
+          <button onClick={submit} disabled={submitting} className="w-full bg-[var(--inverse)] text-[var(--inverse-fg)] font-medium text-[14px] py-3 rounded-full hover:bg-[var(--ink-soft)] disabled:opacity-50">
             {submitting ? "Creating..." : "Create team"}
           </button>
         </div>
@@ -173,5 +173,5 @@ function CreateTeamDialog({ children, onCreated }) {
 }
 
 function Field({ label, children }) {
-  return <div><label className="block text-[12px] font-medium text-[#0F0F12] mb-1.5">{label}</label>{children}</div>;
+  return <div><label className="block text-[12px] font-medium text-[var(--ink)] mb-1.5">{label}</label>{children}</div>;
 }

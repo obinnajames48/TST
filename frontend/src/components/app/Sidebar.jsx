@@ -44,16 +44,16 @@ export default function Sidebar({ onNavigate }) {
   const linkClass = ({ isActive }) =>
     `${itemBase} ${
       isActive
-        ? "bg-[#0F0F12] text-white"
-        : "text-[#4B5563] hover:bg-[#F5F5F2] hover:text-[#0F0F12]"
+        ? "bg-[var(--inverse)] text-[var(--inverse-fg)]"
+        : "text-[var(--body)] hover:bg-[var(--bg-soft)] hover:text-[var(--ink)]"
     }`;
 
   return (
     <aside
       data-testid="app-sidebar"
-      className="w-64 shrink-0 bg-[#FAFAF7] border-r border-[#ECECEA] h-screen sticky top-0 flex flex-col"
+      className="w-64 shrink-0 bg-[var(--bg)] border-r border-[var(--border)] h-screen sticky top-0 flex flex-col"
     >
-      <div className="px-5 pt-6 pb-5 border-b border-[#ECECEA]">
+      <div className="px-5 pt-6 pb-5 border-b border-[var(--border)]">
         <button
           onClick={() => navigate("/")}
           className="flex items-center"
@@ -64,7 +64,7 @@ export default function Sidebar({ onNavigate }) {
       </div>
 
       <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-        <div className="px-3 mb-2 text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">
+        <div className="px-3 mb-2 text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">
           Compete
         </div>
         {nav.map((n) => (
@@ -81,7 +81,7 @@ export default function Sidebar({ onNavigate }) {
                 <n.icon className="w-[18px] h-[18px]" strokeWidth={2} />
                 <span className="flex-1">{n.label}</span>
                 {n.soon && (
-                  <span className="text-[9px] font-medium uppercase tracking-wider bg-[#F3F4F6] text-[#6B7280] px-1.5 py-0.5 rounded">
+                  <span className="text-[9px] font-medium uppercase tracking-wider bg-[var(--tag)] text-[var(--muted)] px-1.5 py-0.5 rounded">
                     Soon
                   </span>
                 )}
@@ -93,7 +93,7 @@ export default function Sidebar({ onNavigate }) {
           </NavLink>
         ))}
 
-        <div className="px-3 mt-6 mb-2 text-[10px] font-mono uppercase tracking-[0.22em] text-[#9CA3AF]">
+        <div className="px-3 mt-6 mb-2 text-[10px] font-mono uppercase tracking-[0.22em] text-[var(--muted-2)]">
           Account
         </div>
         {navSecondary.map((n) => (
@@ -115,13 +115,13 @@ export default function Sidebar({ onNavigate }) {
         ))}
       </nav>
 
-      <div className="px-3 pb-4 border-t border-[#ECECEA] pt-4">
+      <div className="px-3 pb-4 border-t border-[var(--border)] pt-4">
         <div className="flex items-center gap-3 px-3 py-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#0F0F12] grid place-items-center text-white text-sm font-bold">
+          <div className="w-9 h-9 rounded-full bg-[var(--inverse)] grid place-items-center text-[var(--inverse-fg)] text-sm font-bold">
             {currentUser.username[0]}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[13px] font-semibold text-[#0F0F12] truncate">
+            <div className="text-[13px] font-semibold text-[var(--ink)] truncate">
               @{currentUser.username}
             </div>
             <div className="flex items-center gap-1.5">
@@ -129,12 +129,12 @@ export default function Sidebar({ onNavigate }) {
                 className={`text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded ${
                   currentUser.plan === "PRO"
                     ? "bg-[#0F0F12] text-[#B4E04C]"
-                    : "bg-[#F3F4F6] text-[#6B7280]"
+                    : "bg-[var(--tag)] text-[var(--muted)]"
                 }`}
               >
                 {currentUser.plan}
               </span>
-              <span className="text-[11px] text-[#6B7280] truncate">
+              <span className="text-[11px] text-[var(--muted)] truncate">
                 {currentUser.tier} · #{currentUser.globalRank}
               </span>
             </div>
@@ -143,7 +143,7 @@ export default function Sidebar({ onNavigate }) {
         <button
           onClick={() => navigate("/")}
           data-testid="sidebar-logout"
-          className="w-full mt-1 flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-[#6B7280] hover:text-[#EF4444] hover:bg-[#FEE2E2]/30 rounded-xl transition-colors"
+          className="w-full mt-1 flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-[var(--muted)] hover:text-[#EF4444] hover:bg-[#FEE2E2]/30 rounded-xl transition-colors"
         >
           <LogOut className="w-[18px] h-[18px]" />
           Sign out
