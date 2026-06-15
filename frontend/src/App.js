@@ -17,6 +17,12 @@ import Match from "@/pages/app/Match";
 import Affiliate from "@/pages/app/Affiliate";
 import TradingStation from "@/pages/app/TradingStation";
 import TermsPage from "@/pages/Terms";
+import ProductDuel from "@/pages/products/ProductDuel";
+import ProductRoyale from "@/pages/products/ProductRoyale";
+import ProductMulti from "@/pages/products/ProductMulti";
+import ProductTagTeam from "@/pages/products/ProductTagTeam";
+import ProductCommunity from "@/pages/products/ProductCommunity";
+import ProductAffiliate from "@/pages/products/ProductAffiliate";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminLogin from "@/pages/admin/Login";
 import AdminOverview from "@/pages/admin/Overview";
@@ -35,6 +41,12 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/terms" element={<TermsPage />} />
+          <Route path="/products/duel" element={<ProductDuel />} />
+          <Route path="/products/royale" element={<ProductRoyale />} />
+          <Route path="/products/tournament" element={<ProductMulti />} />
+          <Route path="/products/tagteam" element={<ProductTagTeam />} />
+          <Route path="/products/community" element={<ProductCommunity />} />
+          <Route path="/products/affiliate" element={<ProductAffiliate />} />
           <Route path="/app/match/:matchId" element={<Match />} />
           <Route path="/app" element={<ClientLayout />}>
             <Route index element={<Dashboard />} />

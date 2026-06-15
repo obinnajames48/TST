@@ -1,4 +1,5 @@
 import { Swords, Crown, Trophy, Users, Globe, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const products = [
   {
@@ -9,6 +10,7 @@ const products = [
     accent: "lime",
     badge: null,
     big: true,
+    href: "/products/duel",
   },
   {
     icon: Crown,
@@ -17,6 +19,7 @@ const products = [
     detail: "10/20/50 traders · $20 entry · Winner takes all",
     accent: "purple",
     badge: "Live",
+    href: "/products/royale",
   },
   {
     icon: Trophy,
@@ -25,6 +28,7 @@ const products = [
     detail: "Prizes at every stage · Weekly knockouts",
     accent: "lime",
     badge: null,
+    href: "/products/tournament",
   },
   {
     icon: Users,
@@ -33,6 +37,7 @@ const products = [
     detail: "Combined accounts · Distribute capital your way",
     accent: "purple",
     badge: null,
+    href: "/products/tagteam",
   },
   {
     icon: Globe,
@@ -41,6 +46,7 @@ const products = [
     detail: "Discord groups, schools, clubs — collective skill.",
     accent: "neutral",
     badge: "Coming soon",
+    href: "/products/community",
   },
 ];
 
@@ -95,9 +101,10 @@ function ProductCard({ product, className = "", featured }) {
   }[product.accent];
 
   return (
-    <div
+    <Link
+      to={product.href}
       data-testid={`product-card-${product.name.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`group relative bg-white rounded-3xl border border-[#ECECEA] p-6 lg:p-8 hover:-translate-y-1 hover:shadow-[0_18px_36px_-12px_rgba(15,15,18,0.1)] transition-all flex flex-col ${className}`}
+      className={`group relative bg-white rounded-3xl border border-[#ECECEA] p-6 lg:p-8 hover:-translate-y-1 hover:shadow-[0_18px_36px_-12px_rgba(15,15,18,0.1)] transition-all flex flex-col cursor-pointer ${className}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className={`w-12 h-12 rounded-2xl grid place-items-center ${accentBg} ${accentText}`}>
@@ -143,6 +150,6 @@ function ProductCard({ product, className = "", featured }) {
           </div>
         </div>
       )}
-    </div>
+    </Link>
   );
 }

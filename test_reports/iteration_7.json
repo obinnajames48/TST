@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only Playwright testing of restructured landing + dedicated product pages. 43/43 checks passed. Landing no longer renders old ProductDeepDive; slim Affiliate teaser is wired correctly; all 5 ProductSuite cards link to their dedicated /products/* pages; Nav Products dropdown opens on hover with all 6 items; each of the 6 product pages renders the full ProductPageLayout (hero stats, model, rules grid, prize where applicable, bottom CTA, footer); /products/community notify form posts to /api/community/notify and shows success toast; back-to-landing returns to /; nav links from product pages navigate to /#hash; mobile menu toggle works; regression /app and /app/affiliate still load.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All pages (app shell)", "issues": ["Recharts repeatedly logs 'The width(-1) and height(-1) of chart should be greater than 0' on every navigation. Not visually broken but is console noise and indicates a chart container with no min-width/height. Likely inside /app dashboard widgets."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_7.json"
+  ],
+  "action_items": [
+    "Optional: investigate the Recharts width=-1 warnings on the /app dashboard (not blocking, only console noise)."
+  ],
+  "critical_code_review_comments": [
+    "ProductCommunity.jsx stats array has one entry passing { v: 'TBA' } instead of { value: 'TBA' } (line 30). ProductPageLayout reads s.value, so the first stat card 'Format' renders with no value text. Quick one-line fix in ProductCommunity.jsx.",
+    "Nav goto() uses navigate(`/#${id}`) when not on landing; Landing.jsx then scrolls via requestAnimationFrame on hash change — works, but if sections lazy-mount the rAF may fire too early. Currently fine since sections are imported statically.",
+    "ProductPageLayout `product-page-{name}` testid is derived from the page name string (e.g. 'Affiliate Program' → 'product-page-affiliate-program') rather than the route slug. Works but means the testid is content-coupled; consider passing an explicit slug prop for stability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100% (43/43)"},
+  "test_credentials": "Not required — all flows tested are public.",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Landing restructure verified end-to-end via Playwright. Key testids in use: landing-page, affiliate-teaser, affiliate-tier-chip-{rookie|pro|elite|legend}, affiliate-cta-learn (→ /products/affiliate), affiliate-cta-link (→ /app/affiliate), product-card-{1v1-duel|trading-royale|multi-trader|tag-team-trading|community-battles}, nav-link-products, nav-products-menu, nav-product-{1v1-duel|trading-royale|multi-trader|tag-team|community-battles|affiliate}, product-page-{slugified-name}, back-to-landing, product-hero-stats, product-model, product-rules, rules-grid, product-prize, product-extra, product-bottom-cta, community-notify-form-page / -email-page / -submit-page. Toast text on community notify: 'You're on the list. We'll notify you at launch.' Backend was not tested.",
+  "rca of the issue": "No bugs reproduced. One minor data-shape inconsistency flagged in critical_code_review_comments (ProductCommunity.jsx stats[0] uses `v` instead of `value`)."
+}

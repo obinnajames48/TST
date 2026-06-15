@@ -1,22 +1,33 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 const LOGO_WORDMARK =
   "https://customer-assets.emergentagent.com/job_trade-duel-arena/artifacts/aemoxt7k_Asset%2025%404x-8.png";
 
 const links = [
-  { label: "Products", id: "products" },
+  { label: "Products", id: "products", hasMenu: true },
   { label: "How it works", id: "how" },
   { label: "Pricing", id: "pricing" },
   { label: "Affiliate", id: "affiliate" },
   { label: "FAQ", id: "faq" },
 ];
 
+const productMenu = [
+  { name: "1v1 Duel", href: "/products/duel", desc: "Two traders. Equal accounts." },
+  { name: "Trading Royale", href: "/products/royale", desc: "Last balance standing wins." },
+  { name: "Multi Trader", href: "/products/tournament", desc: "32 traders. Group → Final." },
+  { name: "Tag Team", href: "/products/tagteam", desc: "Squad-vs-squad trading." },
+  { name: "Community Battles", href: "/products/community", desc: "Communities go head-to-head." },
+  { name: "Affiliate", href: "/products/affiliate", desc: "10–25% rev-share for life." },
+];
+
 export default function Nav() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -25,8 +36,14 @@ export default function Nav() {
   }, []);
 
   const goto = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // If on landing, smooth-scroll. Else navigate to landing with hash.
+    if (location.pathname === "/") {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate(`/#${id}`);
+    }
     setOpen(false);
+    setProductsOpen(false);
   };
 
   return (
@@ -49,7 +66,41 @@ export default function Nav() {
         </button>
 
         <nav className="hidden lg:flex items-center gap-1 bg-white/60 border border-[#ECECEA] rounded-full px-2 py-1.5 backdrop-blur-sm">
-          {links.map((l) => (
+          {links.map((l) => l.hasMenu ? (
+            <div
+              key={l.id}
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+            >
+              <button
+                onClick={() => goto(l.id)}
+                data-testid={`nav-link-${l.id}`}
+                className="inline-flex items-center gap-1 text-[14px] font-medium text-[#1F2024] px-4 py-2 rounded-full hover:bg-[#F5F5F2] transition-colors"
+              >
+                {l.label}
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+              {productsOpen && (
+                <div className="absolute top-[100%] left-0 pt-3" data-testid="nav-products-menu">
+                  <div className="bg-white border border-[#ECECEA] rounded-2xl p-2 w-[320px] shadow-[0_18px_36px_-12px_rgba(15,15,18,0.12)]">
+                    {productMenu.map((p) => (
+                      <Link
+                        key={p.href}
+                        to={p.href}
+                        data-testid={`nav-product-${p.name.toLowerCase().replace(/\s+/g, "-")}`}
+                        onClick={() => setProductsOpen(false)}
+                        className="block px-3 py-2.5 rounded-xl hover:bg-[#FAFAF7] transition-colors"
+                      >
+                        <div className="text-[14px] font-semibold text-[#0F0F12]">{p.name}</div>
+                        <div className="text-[12px] text-[#6B7280] mt-0.5">{p.desc}</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
             <button
               key={l.id}
               onClick={() => goto(l.id)}
