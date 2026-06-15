@@ -454,6 +454,288 @@ async def spawn_join(payload: dict, me: dict = CurrentUser):
     }
 
 
+# ---------- Matchmaking (v4.1): enter → queue → ready → countdown → live ----------
+
+DUEL_TIERS = {5000: (60, 100), 10000: (125, 200), 25000: (280, 500), 50000: (550, 1000),
+              100000: (1100, 2000), 250000: (2800, 5000), 500000: (5500, 10000),
+              1000000: (11000, 20000)}
+
+QUEUE_SECONDS = 5 * 60  # 5 minutes to find a peer
+READY_SECONDS = 3 * 60  # 3 minutes to ready up after pairing
+PRETRADE_SECONDS = 3 * 60  # 3 minutes after both ready before trading starts
+
+
+def _parse_iso(value):
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    return datetime.fromisoformat(value)
+
+
+async def _refund_trader(user_id: str, amount: int, duel_id: str, note: str):
+    await db.users().update_one({"id": user_id}, {"$inc": {"balance": amount}})
+    tx = Transaction(user_id=user_id, type="Refund", amount=amount,
+                     reference=f"Refund {duel_id} - {note}", status="completed")
+    await _insert(db.transactions(), tx)
+
+
+async def _pick_bot_opponent(exclude_id: str) -> dict:
+    """Pick a synthetic bot opponent — uses an existing seeded user as the bot persona."""
+    candidates = await db.find_many(db.users(), {"id": {"$ne": exclude_id}}, limit=50)
+    return random.choice(candidates) if candidates else None
+
+
+async def _tick_duel_lifecycle(d: dict) -> dict:
+    """Lazy state machine for a duel — runs on every read.
+
+    queueing → (peer found at enter / bot at expiry) → paired
+    paired   → (both ready) → starting, or (deadline) → cancelled
+    starting → (countdown elapsed) → live
+    """
+    now = _now()
+    status = d.get("status")
+    duel_id = d["id"]
+
+    if status == "queueing":
+        exp = _parse_iso(d.get("pairing_expires_at"))
+        if exp and now >= exp:
+            # Fallback: pair with a bot opponent (option 2c)
+            bot = await _pick_bot_opponent(d["trader_a_id"])
+            if bot:
+                ready_dl = now + timedelta(seconds=READY_SECONDS)
+                await db.duels().update_one({"id": duel_id}, {"$set": {
+                    "trader_b_id": bot["id"],
+                    "trader_b_is_bot": True,
+                    "trader_b_ready": now.isoformat(),  # bot auto-readies
+                    "status": "paired",
+                    "ready_deadline": ready_dl.isoformat(),
+                }})
+                d = await db.find_one(db.duels(), {"id": duel_id})
+                status = d.get("status")
+            else:
+                # No users at all — cancel + refund
+                await db.duels().update_one({"id": duel_id}, {"$set": {
+                    "status": "cancelled",
+                    "void_reason": "No opponent available",
+                }})
+                await _refund_trader(d["trader_a_id"], d["entry_fee"], duel_id, "no opponent")
+                return await db.find_one(db.duels(), {"id": duel_id})
+
+    if status == "paired":
+        rd = _parse_iso(d.get("ready_deadline"))
+        if d.get("trader_a_ready") and d.get("trader_b_ready"):
+            # Both ready → transition to "starting" with 3-minute trade-start countdown
+            ts = now + timedelta(seconds=PRETRADE_SECONDS)
+            await db.duels().update_one({"id": duel_id}, {"$set": {
+                "status": "starting",
+                "trade_starts_at": ts.isoformat(),
+            }})
+            d = await db.find_one(db.duels(), {"id": duel_id})
+            status = d.get("status")
+        elif rd and now >= rd:
+            # Ready deadline passed without both ready → cancel & refund ready trader(s)
+            for tid_key, ready_key, is_bot_key in [
+                ("trader_a_id", "trader_a_ready", None),
+                ("trader_b_id", "trader_b_ready", "trader_b_is_bot"),
+            ]:
+                tid = d.get(tid_key)
+                if not tid:
+                    continue
+                if is_bot_key and d.get(is_bot_key):
+                    continue  # bot didn't pay
+                if d.get(ready_key):
+                    await _refund_trader(tid, d["entry_fee"], duel_id, "opponent not ready")
+                else:
+                    # Trader didn't ready — keep their entry fee (forfeit), but for
+                    # this MVP we still refund to be fair. (User chose option 4b.)
+                    await _refund_trader(tid, d["entry_fee"], duel_id, "match cancelled")
+            await db.duels().update_one({"id": duel_id}, {"$set": {
+                "status": "cancelled",
+                "void_reason": "A trader did not ready up within 3 minutes",
+            }})
+            return await db.find_one(db.duels(), {"id": duel_id})
+
+    if status == "starting":
+        ts = _parse_iso(d.get("trade_starts_at"))
+        if ts and now >= ts:
+            duration_hours = 24 if d["account_size"] >= 50000 else 4
+            await db.duels().update_one({"id": duel_id}, {"$set": {
+                "status": "live",
+                "started_at": now.isoformat(),
+                "ends_at": (now + timedelta(hours=duration_hours)).isoformat(),
+            }})
+            d = await db.find_one(db.duels(), {"id": duel_id})
+
+    return d
+
+
+def _queue_view(d: dict, me_id: str, opponent: Optional[dict]) -> dict:
+    you_is_a = d.get("trader_a_id") == me_id
+    you_ready = bool(d.get("trader_a_ready") if you_is_a else d.get("trader_b_ready"))
+    opp_ready = bool(d.get("trader_b_ready") if you_is_a else d.get("trader_a_ready"))
+    return {
+        "duel_id": d["id"],
+        "status": d["status"],
+        "account_size": d["account_size"],
+        "entry_fee": d["entry_fee"],
+        "prize": d["prize"],
+        "you_are": "a" if you_is_a else "b",
+        "you_ready": you_ready,
+        "opponent_ready": opp_ready,
+        "opponent": {
+            "username": opponent["username"],
+            "tier": opponent.get("tier", "Bronze"),
+            "is_bot": bool(d.get("trader_b_is_bot")) and you_is_a,
+        } if opponent else None,
+        "pairing_expires_at": d.get("pairing_expires_at"),
+        "ready_deadline": d.get("ready_deadline"),
+        "trade_starts_at": d.get("trade_starts_at"),
+        "void_reason": d.get("void_reason"),
+    }
+
+
+@api.post("/duels/enter")
+async def duels_enter(payload: dict, me: dict = CurrentUser):
+    """Step 1 of matchmaking: pay entry fee and join the queue (or pair instantly).
+
+    Tries to match with an existing user already in `queueing` for the same tier.
+    Otherwise creates a `queueing` duel with a 5-minute pairing window.
+    """
+    account_size = int(payload.get("account_size", 5000))
+    if account_size not in DUEL_TIERS:
+        raise HTTPException(400, detail="Invalid account size")
+    entry_fee, prize = DUEL_TIERS[account_size]
+
+    # Wallet check
+    if me.get("balance", 0) < entry_fee:
+        raise HTTPException(402, detail=f"Insufficient wallet balance. Need ${entry_fee} to enter this duel.")
+
+    # Avoid double-entry while already in an in-flight duel
+    existing = await db.find_one(db.duels(), {
+        "$or": [{"trader_a_id": me["id"]}, {"trader_b_id": me["id"]}],
+        "status": {"$in": ["queueing", "paired", "starting"]},
+    })
+    if existing:
+        raise HTTPException(409, detail="You are already in an active matchmaking flow")
+
+    # Deduct wallet + record entry-fee transaction
+    await db.users().update_one({"id": me["id"]}, {"$inc": {"balance": -entry_fee}})
+    tx = Transaction(user_id=me["id"], type="Entry Fee", amount=-entry_fee,
+                     reference=f"Duel entry ${account_size:,}", status="completed")
+    await _insert(db.transactions(), tx)
+
+    # Try to match with a peer already queueing at the same tier
+    peer = await db.find_one(db.duels(), {
+        "status": "queueing",
+        "account_size": account_size,
+        "trader_a_id": {"$ne": me["id"]},
+    })
+    if peer:
+        # Promote peer's duel to paired with me as trader_b
+        ready_dl = _now() + timedelta(seconds=READY_SECONDS)
+        await db.duels().update_one({"id": peer["id"]}, {"$set": {
+            "trader_b_id": me["id"],
+            "status": "paired",
+            "ready_deadline": ready_dl.isoformat(),
+            "pairing_expires_at": None,
+        }})
+        # Update tx reference now that we know the duel id
+        await db.transactions().update_one({"id": tx.id}, {
+            "$set": {"reference": f"Duel {peer['id']}"}
+        })
+        notif = Notification(user_id=me["id"], type="pair", title="Opponent found",
+                             body=f"You've been paired for a ${account_size:,} duel. Ready up within 3 minutes.")
+        await _insert(db.notifications(), notif)
+        await db.notifications().insert_one({
+            "id": _uid_str(),
+            "user_id": peer["trader_a_id"], "type": "pair",
+            "title": "Opponent found",
+            "body": f"You've been paired for your ${account_size:,} duel. Ready up within 3 minutes.",
+            "unread": True,
+            "created_at": _now().isoformat(),
+        })
+        return {"duel_id": peer["id"], "status": "paired",
+                "account_size": account_size, "entry_fee": entry_fee, "prize": prize}
+
+    # Otherwise create a new queueing duel
+    now = _now()
+    duel = Duel(
+        type="standard",
+        trader_a_id=me["id"],
+        account_size=account_size,
+        entry_fee=entry_fee,
+        prize=prize,
+        status="queueing",
+        started_at=now,
+        ends_at=now,  # set properly when match goes live
+        pairing_expires_at=now + timedelta(seconds=QUEUE_SECONDS),
+        spectator_base=random.randint(20, 80),
+        rules=DuelRules(timeline="24h" if account_size >= 50000 else "4h"),
+    )
+    await _insert(db.duels(), duel)
+    await db.transactions().update_one({"id": tx.id}, {"$set": {"reference": f"Duel {duel.id}"}})
+    return {"duel_id": duel.id, "status": "queueing",
+            "account_size": account_size, "entry_fee": entry_fee, "prize": prize,
+            "pairing_expires_at": duel.pairing_expires_at.isoformat()}
+
+
+@api.get("/duels/queue/{duel_id}")
+async def duels_queue_state(duel_id: str, me: dict = CurrentUser):
+    """Poll the current state of a matchmaking duel. Lazily advances the state machine."""
+    d = await db.find_one(db.duels(), {"id": duel_id})
+    if not d:
+        raise HTTPException(404, detail="Duel not found")
+    if me["id"] not in (d.get("trader_a_id"), d.get("trader_b_id")):
+        raise HTTPException(403, detail="Not a participant")
+    d = await _tick_duel_lifecycle(d)
+    # Fetch opponent
+    opponent_id = d.get("trader_b_id") if d.get("trader_a_id") == me["id"] else d.get("trader_a_id")
+    opponent = await db.find_one(db.users(), {"id": opponent_id}) if opponent_id else None
+    return _queue_view(d, me["id"], opponent)
+
+
+@api.post("/duels/queue/{duel_id}/cancel")
+async def duels_queue_cancel(duel_id: str, me: dict = CurrentUser):
+    """Cancel a queueing duel before pairing — full refund."""
+    d = await db.find_one(db.duels(), {"id": duel_id})
+    if not d:
+        raise HTTPException(404, detail="Duel not found")
+    if d.get("trader_a_id") != me["id"]:
+        raise HTTPException(403, detail="Only the entrant can cancel the queue")
+    if d.get("status") != "queueing":
+        raise HTTPException(409, detail="Cannot cancel — already paired")
+    await db.duels().update_one({"id": duel_id}, {"$set": {
+        "status": "cancelled",
+        "void_reason": "Cancelled by entrant",
+    }})
+    await _refund_trader(me["id"], d["entry_fee"], duel_id, "cancelled by entrant")
+    return {"ok": True}
+
+
+@api.post("/duels/{duel_id}/ready")
+async def duels_ready(duel_id: str, me: dict = CurrentUser):
+    """Mark this trader as ready in a paired duel."""
+    d = await db.find_one(db.duels(), {"id": duel_id})
+    if not d:
+        raise HTTPException(404, detail="Duel not found")
+    if me["id"] not in (d.get("trader_a_id"), d.get("trader_b_id")):
+        raise HTTPException(403, detail="Not a participant")
+    if d.get("status") not in ("paired", "starting"):
+        raise HTTPException(409, detail=f"Cannot ready up — status is {d.get('status')}")
+    key = "trader_a_ready" if d.get("trader_a_id") == me["id"] else "trader_b_ready"
+    if not d.get(key):
+        await db.duels().update_one({"id": duel_id}, {"$set": {key: _now().isoformat()}})
+    d = await db.find_one(db.duels(), {"id": duel_id})
+    d = await _tick_duel_lifecycle(d)
+    opponent_id = d.get("trader_b_id") if d.get("trader_a_id") == me["id"] else d.get("trader_a_id")
+    opponent = await db.find_one(db.users(), {"id": opponent_id}) if opponent_id else None
+    return _queue_view(d, me["id"], opponent)
+
+
+
+
+
 @api.post("/duels/custom")
 async def create_custom_duel(payload: CreateCustomDuelInput, me: dict = CurrentUser):
     if me["plan"] != "PRO":

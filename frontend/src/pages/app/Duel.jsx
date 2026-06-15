@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Eye, ArrowRight, Sparkles, Lock, Clock, Hourglass, Radio } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "@/components/app/PageHeader";
+import DuelMatchmakingDialog from "@/components/app/DuelMatchmakingDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFetch } from "@/lib/useFetch";
-import { listLiveDuels, listOpenDuels, spawnJoin, createCustomDuel, getMe } from "@/lib/api";
+import { listLiveDuels, listOpenDuels, createCustomDuel, getMe } from "@/lib/api";
 
 const accountSizes = [
   { size: 5000, entry: 60, prize: 100 },
@@ -28,9 +29,8 @@ export default function Duel() {
   const liveDuels = liveDuelsRaw || [];
   const openDuels = openDuelsRaw || [];
   const { data: me } = useFetch(getMe);
-  const [spawnOpen, setSpawnOpen] = useState(false);
+  const [matchmakingOpen, setMatchmakingOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [phase, setPhase] = useState("idle");
 
   const isPro = me?.plan === "PRO";
 
@@ -43,28 +43,9 @@ export default function Duel() {
     { key: "live-standard", title: "Live Standard Duels", subtitle: "Standard rules. In progress.", tone: "standard", state: "live", items: liveDuels.filter((d) => !d.custom) },
   ], [openDuels, liveDuels]);
 
-  const startSpawn = async (acc) => {
+  const startMatchmaking = (acc) => {
     setSelectedAccount(acc);
-    setSpawnOpen(true);
-    setPhase("searching");
-    try {
-      setTimeout(async () => {
-        const res = await spawnJoin(acc.size);
-        setPhase("paired");
-        setTimeout(() => setPhase("activating"), 1500);
-        setTimeout(() => setPhase("starting"), 3000);
-        setTimeout(() => {
-          setSpawnOpen(false);
-          setPhase("idle");
-          toast.success(`Your $${acc.size.toLocaleString()} duel is live!`);
-          navigate(`/app/match/${res.duel_id}`);
-        }, 5000);
-      }, 2000);
-    } catch (e) {
-      toast.error(e.message);
-      setSpawnOpen(false);
-      setPhase("idle");
-    }
+    setMatchmakingOpen(true);
   };
 
   return (
@@ -90,13 +71,13 @@ export default function Duel() {
               <div className="w-10 h-10 rounded-xl bg-[var(--lime-soft)] grid place-items-center"><Clock className="w-5 h-5 text-[var(--ink)]" /></div>
               <div>
                 <div className="text-[15px] font-semibold text-[var(--ink)]">How spawning works</div>
-                <p className="text-[13px] text-[var(--body)] mt-1 max-w-xl">Pick an account size and pay the entry fee. We pair you within 5 minutes. Both traders accept, accounts activate, then a 60-second countdown begins.</p>
+                <p className="text-[13px] text-[var(--body)] mt-1 max-w-xl">Pick an account size and confirm payment from your wallet. You&apos;ll enter a 5-minute pairing queue, then a 3-minute ready-up window. Once both traders ready, MT5 credentials reveal with a 3-minute countdown before trading begins.</p>
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="spawn-grid">
             {accountSizes.map((a) => (
-              <button key={a.size} onClick={() => startSpawn(a)} data-testid={`spawn-card-${a.size}`} className="text-left bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,15,18,0.1)] transition-all">
+              <button key={a.size} onClick={() => startMatchmaking(a)} data-testid={`spawn-card-${a.size}`} className="text-left bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(15,15,18,0.1)] transition-all">
                 <div className="font-mono text-2xl font-semibold text-[var(--ink)] tracking-tight">${a.size >= 1000000 ? "1M" : `${a.size / 1000}K`}</div>
                 <div className="mt-2 text-xs text-[var(--muted)] font-mono">Entry ${a.entry} · Prize <span className="text-[#10B981] font-semibold">${a.prize}</span></div>
                 <div className="mt-4 flex items-center justify-between">
@@ -113,7 +94,7 @@ export default function Duel() {
         </TabsContent>
       </Tabs>
 
-      <SpawnDialog open={spawnOpen} onClose={() => { setSpawnOpen(false); setPhase("idle"); }} phase={phase} account={selectedAccount} />
+      <DuelMatchmakingDialog open={matchmakingOpen} account={selectedAccount} onClose={() => setMatchmakingOpen(false)} />
     </div>
   );
 }
@@ -146,27 +127,6 @@ function Pill({ label, value }) {
       <div className="text-[10px] font-mono text-[var(--muted-2)] uppercase tracking-wider">{label}</div>
       <div className="text-[13px] font-mono font-semibold text-[var(--ink)]">{value}</div>
     </div>
-  );
-}
-
-function SpawnDialog({ open, onClose, phase, account }) {
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md rounded-3xl border-[var(--border)] bg-[var(--surface)]" data-testid="spawn-dialog">
-        <DialogHeader>
-          <DialogTitle className="text-[var(--ink)] text-xl">Spawn Centre</DialogTitle>
-          <DialogDescription className="text-[var(--muted)]">
-            {account ? `$${account.size.toLocaleString()} account · $${account.entry} entry` : ""}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-6 text-center">
-          {phase === "searching" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[var(--lime-soft)] grid place-items-center mb-4 relative"><div className="absolute inset-0 rounded-full border-2 border-[#B4E04C] animate-ping opacity-40" /><Clock className="w-7 h-7 text-[var(--ink)]" /></div><div className="font-mono text-2xl font-semibold text-[var(--ink)]">04:58</div><div className="mt-2 text-[14px] text-[var(--body)]">Searching for an opponent…</div></>)}
-          {phase === "paired" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[var(--purple-soft)] grid place-items-center mb-4"><Sparkles className="w-7 h-7 text-[#7C3AED]" /></div><div className="text-lg font-semibold text-[var(--ink)]">Opponent found</div><div className="mt-2 text-[14px] text-[var(--body)]">Waiting for acceptance…</div></>)}
-          {phase === "activating" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#0F0F12] text-[#B4E04C] grid place-items-center mb-4"><Lock className="w-7 h-7" /></div><div className="text-lg font-semibold text-[var(--ink)]">Both traders confirmed</div><div className="mt-2 text-[14px] text-[var(--body)]">Activating your trading account…</div></>)}
-          {phase === "starting" && (<><div className="mx-auto w-20 h-20 rounded-full bg-[#B4E04C] grid place-items-center mb-4"><ArrowRight className="w-7 h-7 text-[var(--ink)]" strokeWidth={2.5} /></div><div className="font-mono text-3xl font-semibold text-[var(--ink)]">0:60</div><div className="mt-2 text-[14px] text-[var(--body)]">Trading begins in…</div></>)}
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
 

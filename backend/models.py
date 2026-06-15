@@ -78,7 +78,7 @@ class UserUpdate(BaseModel):
 
 # ---------- Duel ----------
 
-DuelStatus = Literal["pairing", "live", "completed", "cancelled"]
+DuelStatus = Literal["pairing", "queueing", "paired", "starting", "live", "completed", "cancelled"]
 
 
 class DuelRules(BaseModel):
@@ -113,6 +113,14 @@ class Duel(BaseModel):
     winner_id: Optional[str] = None
     final_pnl_a: Optional[float] = None
     final_pnl_b: Optional[float] = None
+    # Matchmaking flow (v4.1)
+    pairing_expires_at: Optional[datetime] = None  # 5m queue timer
+    ready_deadline: Optional[datetime] = None  # 3m ready-up timer (after pairing)
+    trade_starts_at: Optional[datetime] = None  # 3m pre-trade countdown
+    trader_a_ready: Optional[str] = None  # iso ts when ready
+    trader_b_ready: Optional[str] = None  # iso ts when ready
+    trader_b_is_bot: bool = False
+    void_reason: Optional[str] = None
 
 
 # Duel as seen by the API (with live P&L computed)

@@ -40,6 +40,13 @@ export const getTradingStation = () => http("/me/trading-station");
 export const getDuel = (id) => http(`/duels/${id}`);
 export const spawnJoin = (account_size) =>
   http("/duels/spawn", { method: "POST", body: { account_size } });
+export const enterDuel = (account_size) =>
+  http("/duels/enter", { method: "POST", body: { account_size } });
+export const getQueueState = (duel_id) => http(`/duels/queue/${duel_id}`);
+export const cancelQueue = (duel_id) =>
+  http(`/duels/queue/${duel_id}/cancel`, { method: "POST" });
+export const readyDuel = (duel_id) =>
+  http(`/duels/${duel_id}/ready`, { method: "POST" });
 export const createCustomDuel = (payload) =>
   http("/duels/custom", { method: "POST", body: payload });
 export const getMt5Creds = (id) => http(`/duels/${id}/mt5`);

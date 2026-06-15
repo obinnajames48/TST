@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 5 — backend-only testing of v4.1 1v1 Duel matchmaking flow. Added new pytest suite /app/backend/tests/test_matchmaking_v41.py with 21 test cases covering POST /api/duels/enter (wallet deduction, insufficient balance 402, double-entry 409, invalid tier 400), peer pairing across two users, ready-up state transitions, bot fallback at queue expiry, starting→live transition, ready-deadline cancellation+refund (both human-vs-human and human-vs-bot), queue cancel (entrant-only / 409 after paired / 403 for non-entrant), MT5 credential determinism + participant-only 403, plus regression smoke for /api/me, /api/wallet, /api/duels/live, /api/duels/open, /api/dashboard, and legacy /api/duels/spawn. Combined with the existing 19-test suite, total 40/40 PASS.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/duels/enter (peer match)", "issue": "When peer pairing happens, the second entrant's Entry-Fee transaction `reference` is left as the initial 'Duel entry $25,000' string and is never updated with the actual duel_id (only the first entrant's tx is rewritten). Cosmetic — does not affect wallet math."},
+      {"endpoint": "_tick_duel_lifecycle (ready timeout refund)", "issue": "Comment at server.py:550-551 says the trader who did NOT ready 'forfeits' but the code still refunds them (per user choice 4b). Implementation matches the chosen behaviour, but the comment is misleading — recommend cleaning up the inline comment."},
+      {"endpoint": "GET /api/duels/queue/{id}", "issue": "_queue_view exposes `is_bot` only when viewer is trader_a (`bool(d.get('trader_b_is_bot')) and you_is_a`). If a bot match were ever viewed from trader_b's side this would mis-report — currently unreachable because bot is always assigned to trader_b, but the AND-clause is fragile."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_matchmaking_v41.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/matchmaking_v41.xml",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional cosmetic) After peer pairing in POST /api/duels/enter, also update the joining trader's Entry-Fee transaction reference to 'Duel {peer.id}' to match the entrant's.",
+    "(Optional) Clean up the misleading comment in _tick_duel_lifecycle (server.py:550-551) about forfeit vs refund.",
+    "(Carry-over from iteration 4) Split server.py (~1340 lines) into routers; remove the duplicate `app.include_router(api)` calls at lines 1093 and 1328."
+  ],
+  "critical_code_review_comments": [
+    "server.py:644 — peer-pairing path updates only the entrant's transaction reference; the joiner's transaction reference is left stale (cosmetic, no money impact).",
+    "server.py:573-595 — `_queue_view.opponent.is_bot` is gated by `you_is_a`, so only viewable from trader_a's perspective. Today bots only appear on trader_b so this works, but if matchmaking ever assigns a bot to trader_a the flag silently disappears.",
+    "server.py:1093 and 1328 — `app.include_router(api)` is called twice; idempotent today but fragile.",
+    "server.py:483-486 — `_pick_bot_opponent` does not actually verify the candidate is a bot persona; it picks any random user. This is consistent with the chosen 2c behaviour (re-purpose a seeded user) but the user is then mutated to look bot-like via trader_b_is_bot flag — fine for MVP, document it.",
+    "server.py:551-552 — Ready-deadline path comments 'trader forfeits' but code still refunds; align comment with chosen option 4b (refund both)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_matchmaking_v41.py (NEW — 21 pytest cases)"
+  ],
+  "success_rate": {"backend": "100% (40/40)", "frontend": "not tested (backend-only request)"},
+  "test_credentials": "Mock auth via X-Username header — default seeded users include TradeFury, MoCapital, RileyJess, StealthAlpha, etc. Admin token Bearer admin-secret-token-2026.",
+  "seed_data_creation": "Tests cancel any pre-existing in-flight duels for the actors before each scenario and top up wallet via POST /api/wallet/deposit when needed. The insufficient-balance test temporarily zeros RileyJess's balance and restores it in a finally block.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run all backend tests with `pytest /app/backend/tests/ -v`. New v4.1 matchmaking suite is /app/backend/tests/test_matchmaking_v41.py — uses pymongo directly (MONGO_URL/DB_NAME from /app/backend/.env defaults) to force pairing_expires_at / ready_deadline / trade_starts_at into the past for lifecycle ticks. State machine is lazy (runs on GET /api/duels/queue/{id} or POST /api/duels/{id}/ready). DUEL_TIERS map: 5000=$60/$100, 25000=$280/$500. The legacy /api/duels/spawn still creates a 'live' duel directly (no entry-fee deduction from wallet — just records a Transaction; verify before promoting it). Frontend NOT tested this iteration.",
+  "rca of the issue": "No bugs found. All 21 new matchmaking tests pass on first run after fixing the BASE_URL fallback (read REACT_APP_BACKEND_URL from /app/frontend/.env when env var not set in shell). Lifecycle state machine, refunds, ready transitions, bot fallback, MT5 determinism, and authorization checks all behave per the documented v4.1 spec."
+}
