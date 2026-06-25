@@ -1,6 +1,7 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
+import PreviewGate from "@/components/PreviewGate";
 import Landing from "@/pages/Landing";
 import ClientLayout from "@/components/app/ClientLayout";
 import Dashboard from "@/pages/app/Dashboard";
@@ -38,7 +39,8 @@ import { AdminTransactions, AdminAffiliates, AdminSettlements } from "@/pages/ad
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <PreviewGate>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/terms" element={<TermsPage />} />
@@ -79,6 +81,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </PreviewGate>
       <Toaster
         position="bottom-right"
         toastOptions={{
